@@ -15,8 +15,9 @@ pub fn init_routes() -> Rocket {
 
     database_config.insert("url",std::env::var("DATABASE_URL").unwrap());
     databases.insert("alcalc-db",Value::from(database_config));
-
-    let config = Config::build(Environment::Development)
+    let port_number: u16 = std::env::var("ROCKET_PORT").unwrap().parse::<u16>().unwrap();
+    let config = Config::build(Environment::Staging)
+        .port(port_number)
         .extra("databases", databases)
         .finalize()
         .unwrap();
