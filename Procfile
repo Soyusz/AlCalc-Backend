@@ -1,1 +1,1 @@
-web: ROCKET_PORT=./target/release/alcalc_backend
+web: ROCKET_PORT=$PORT ./target/release/alcalc_backend
