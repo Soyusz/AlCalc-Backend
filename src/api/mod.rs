@@ -17,6 +17,6 @@ pub fn init_routes() -> Rocket {
     ];
 
     rocket::ignite()
-//        .attach(DBPool::fairing())
+        .attach(DBPool::fairing())
         .mount("/entry", entry_routes)
 }
