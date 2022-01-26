@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 use crate::api::DBPool;
 use crate::model::entry::Entry;
 use crate::db::entry::get_all;
@@ -24,7 +26,7 @@ pub fn insert_entry(
 }
 
 pub fn verify_entry(
-    id: i32,
+    id: Uuid,
     conn: DBPool
 ) -> Result<Entry,bool> {
     let res = verify(id,&conn);

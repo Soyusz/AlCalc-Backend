@@ -1,5 +1,6 @@
 use rocket::{get,post,put};
 use rocket_contrib::json::Json;
+use uuid::Uuid;
 use crate::model::entry::Entry;
 use crate::api::DBPool; 
 use crate::services::entry::get_all_entries;
@@ -28,11 +29,21 @@ pub fn post_new(
     }
 }
 
-#[put("/<id>")]
+#[put("/<id_string>")]
 pub fn verify(
-    id: i32,
+    id_string: String,
     conn: DBPool
 ) -> Result<Json<Entry>,Json<bool>> {
+    let id_res = Uuid::parse_str(id_string.as_str());
+    let id;
+    match id_res {
+        Ok(r) => {
+            id = r;
+        },
+        Err(_) => {
+            return Err(Json(false))
+        }
+    }
     let res = verify_entry(id,conn);
     match res {
         Ok(r) => Ok(Json(r)),
