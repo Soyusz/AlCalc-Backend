@@ -1,5 +1,5 @@
 CREATE TABLE entries (
-    id SERIAL PRIMARY KEY,
+    id uuid NOT NULL PRIMARY KEY,
     name VARCHAR NOT NULL,
     price FLOAT NOT NULL,
     voltage FLOAT NOT NULL,
