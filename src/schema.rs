@@ -1,6 +1,6 @@
 table! {
     entries (id) {
-        id -> Int4,
+        id -> Uuid,
         name -> Varchar,
         price -> Float8,
         voltage -> Float8,

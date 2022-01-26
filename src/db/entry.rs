@@ -1,23 +1,24 @@
 use diesel::{self, PgConnection};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use crate::schema::entries;
 use crate::schema::entries::dsl::entries as all_entries;
 use crate::schema::entries::id as entry_id;
-use crate::model::entry::Entry;
+use crate::model::entry::{Entry, create_entry};
 
 #[derive(Insertable,Clone,Deserialize,Serialize)]
 #[table_name="entries"]
 pub struct NewEntry {
-    name: String,
-    price: f64,
-    voltage: f64,
-    volume: f64,
-    photo: String,
+    pub name: String,
+    pub price: f64,
+    pub voltage: f64,
+    pub volume: f64,
+    pub photo: String,
 }
 
 pub fn get_by_id(
-    id: i32,
+    id: Uuid,
     conn: &PgConnection
 ) -> Option<Entry> {
     let entry_vec= 
@@ -41,8 +42,9 @@ pub fn get_all(
         .unwrap_or_else(|_| -> Vec<Entry> {vec![]})
 }
 
+
 pub fn verify(
-    id: i32,
+    id: Uuid,
     conn: &PgConnection
 ) -> Option<Entry> {
     use crate::schema::entries::verified;
@@ -59,9 +61,10 @@ pub fn add_new(
     entry: NewEntry,
     conn: &PgConnection
 ) -> Option<Entry> {
-    let query_res: Result<Vec<i32>,_> = 
+    let insert_entry = create_entry(entry);
+    let query_res: Result<Vec<Uuid>,_> = 
         diesel::insert_into(entries::table)
-            .values(&entry)
+            .values(&insert_entry)
             .returning(entry_id)
             .get_results(conn);
 
