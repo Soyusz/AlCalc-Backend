@@ -5,10 +5,9 @@ use uuid::Uuid;
 use crate::schema::entries;
 use crate::schema::entries::dsl::entries as all_entries;
 use crate::schema::entries::id as entry_id;
-use crate::model::entry::{Entry, create_entry};
+use crate::model::entry::Entry;
 
-#[derive(Insertable,Clone,Deserialize,Serialize)]
-#[table_name="entries"]
+#[derive(Clone,Deserialize,Serialize)]
 pub struct NewEntry {
     pub name: String,
     pub price: f64,
@@ -58,14 +57,13 @@ pub fn verify(
 }
 
 pub fn add_new(
-    entry: NewEntry,
+    entry: Entry,
     conn: &PgConnection
 ) -> Option<Entry> {
-    let insert_entry = create_entry(entry);
 
     let query_res: Result<Vec<Uuid>,_> = 
         diesel::insert_into(entries::table)
-            .values(&insert_entry)
+            .values(&entry)
             .returning(entry_id)
             .get_results(conn);
 

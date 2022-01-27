@@ -18,7 +18,8 @@ pub fn insert_entry(
     entry: NewEntry,
     conn: DBPool
 ) -> Result<Entry,bool> {
-    let res = add_new(entry,&conn);
+    let new_entry = Entry::new(entry);
+    let res = add_new(new_entry,&conn);
     match res {
         Some(e) => Ok(e),
         None => Err(true)
