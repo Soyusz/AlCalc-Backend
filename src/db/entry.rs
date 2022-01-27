@@ -62,6 +62,7 @@ pub fn add_new(
     conn: &PgConnection
 ) -> Option<Entry> {
     let insert_entry = create_entry(entry);
+
     let query_res: Result<Vec<Uuid>,_> = 
         diesel::insert_into(entries::table)
             .values(&insert_entry)
