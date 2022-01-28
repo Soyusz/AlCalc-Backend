@@ -1,7 +1,16 @@
 use serde::{Deserialize, Serialize};
 use diesel::{self, Queryable};
 use uuid::Uuid;
-use crate::{schema::entries, db::entry::NewEntry};
+use crate::schema::entries;
+
+#[derive(Clone,Deserialize,Serialize)]
+pub struct NewEntry {
+    pub name: String,
+    pub price: f64,
+    pub voltage: f64,
+    pub volume: f64,
+    pub photo: String,
+}
 
 #[derive(Clone,Deserialize,Serialize,Queryable,Insertable)]
 #[table_name="entries"]

@@ -6,3 +6,4 @@ pub mod db;
 pub mod schema;
 pub mod api;
 pub mod services;
+pub mod utils;

@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::model::entry::Entry;
 use crate::api::DBPool; 
 use crate::services::entry::get_all_entries;
-use crate::db::entry::NewEntry;
+use crate::model::entry::NewEntry;
 use crate::services::entry::insert_entry;
 use crate::services::entry::verify_entry;
 use crate::services::entry::get_verified_entries;
