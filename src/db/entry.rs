@@ -35,7 +35,7 @@ pub fn get_all(conn: &PgConnection) -> Vec<Entry> {
         .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
 }
 
-pub fn verify(id: Uuid, state: bool, conn: &PgConnection) -> Option<Entry> {
+pub fn verify(id: Uuid, state: Option<bool>, conn: &PgConnection) -> Option<Entry> {
     use crate::schema::entries::verified;
     let mutation_res = diesel::update(all_entries.find(id))
         .set(verified.eq(state))

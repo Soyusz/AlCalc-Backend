@@ -1,0 +1,2 @@
+ALTER TABLE entries ALTER verified DROP NOT NULL,
+ALTER verified SET DEFAULT NULL

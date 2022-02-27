@@ -1,0 +1,2 @@
+ALTER TABLE entries ALTER verified SET NOT NULL,
+ALTER verified SET DEFAULT 'f'
