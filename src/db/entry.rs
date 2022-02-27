@@ -75,7 +75,7 @@ pub fn get_verified(conn: &PgConnection) -> Vec<Entry> {
 
 pub fn get_unverified(conn: &PgConnection) -> Vec<Entry> {
     all_entries
-        .filter(entries::verified.eq_all(false))
+        .filter(entries::verified.is_null())
         .load::<Entry>(conn)
         .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
 }
