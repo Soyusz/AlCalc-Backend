@@ -17,8 +17,8 @@ pub fn post_new(conn: DBPool, new_entry: Json<NewEntry>) -> Result<Json<Entry>, 
     }
 }
 
-#[put("/<id_string>")]
-pub fn verify(id_string: String, conn: DBPool) -> Result<Json<Entry>, Json<bool>> {
+#[put("/<id_string>/accept")]
+pub fn verify_accept(id_string: String, conn: DBPool) -> Result<Json<Entry>, Json<bool>> {
     let id_res = Uuid::parse_str(id_string.as_str());
     let id;
     match id_res {
@@ -27,7 +27,24 @@ pub fn verify(id_string: String, conn: DBPool) -> Result<Json<Entry>, Json<bool>
         }
         Err(_) => return Err(Json(false)),
     }
-    let res = verify_entry(id, conn);
+    let res = verify_entry(id, true, conn);
+    match res {
+        Ok(r) => Ok(Json(r)),
+        Err(e) => Err(Json(e)),
+    }
+}
+
+#[put("/<id_string>/reject")]
+pub fn verify_reject(id_string: String, conn: DBPool) -> Result<Json<Entry>, Json<bool>> {
+    let id_res = Uuid::parse_str(id_string.as_str());
+    let id;
+    match id_res {
+        Ok(r) => {
+            id = r;
+        }
+        Err(_) => return Err(Json(false)),
+    }
+    let res = verify_entry(id, false, conn);
     match res {
         Ok(r) => Ok(Json(r)),
         Err(e) => Err(Json(e)),

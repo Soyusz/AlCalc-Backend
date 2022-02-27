@@ -55,7 +55,8 @@ pub fn init_routes() -> Rocket {
         queries::entry::get_verified,
         queries::entry::get_unverified,
         mutations::entry::post_new,
-        mutations::entry::verify
+        mutations::entry::verify_accept,
+        mutations::entry::verify_reject
     ];
 
     rocket::custom(config)

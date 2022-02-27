@@ -21,8 +21,8 @@ pub fn insert_entry(entry: NewEntry, conn: DBPool) -> Result<Entry, bool> {
     }
 }
 
-pub fn verify_entry(id: Uuid, conn: DBPool) -> Result<Entry, bool> {
-    let res = verify(id, &conn);
+pub fn verify_entry(id: Uuid, state: bool, conn: DBPool) -> Result<Entry, bool> {
+    let res = verify(id, state, &conn);
     match res {
         Some(s) => Ok(s),
         None => Err(true),
