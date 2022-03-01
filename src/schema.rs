@@ -5,7 +5,7 @@ table! {
         price -> Float8,
         voltage -> Float8,
         volume -> Float8,
-        verified -> Bool,
+        verified -> Nullable<Bool>,
         photo -> Varchar,
     }
 }
