@@ -5,8 +5,8 @@ use crate::services::email as EmailService;
 use uuid::Uuid;
 
 pub fn insert_user(user: dbUser::NewUser, conn: DBPool) -> Result<User, bool> {
+    EmailService::email_verification(&user.email);
     let res = dbUser::add_new(user, &conn);
-    EmailService::email_verification(user.email);
     match res {
         Some(e) => Ok(e),
         None => Err(true),
