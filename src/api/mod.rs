@@ -59,8 +59,11 @@ pub fn init_routes() -> Rocket {
         mutations::entry::verify_reject
     ];
 
+    let user_routes = routes![queries::user::get_all, mutations::user::post_new];
+
     rocket::custom(config)
         .attach(CORS)
         .attach(DBPool::fairing())
         .mount("/entry", entry_routes)
+        .mount("/user", user_routes)
 }
