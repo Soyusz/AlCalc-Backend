@@ -2,8 +2,7 @@ use dotenv::dotenv;
 use rocket::config::{Config, Environment, Value};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
-use rocket::{routes, Rocket};
-use rocket::{Request, Response};
+use rocket::{Request, Response, Rocket};
 use std::collections::HashMap;
 
 pub mod mutations;
@@ -50,20 +49,11 @@ pub fn init_routes() -> Rocket {
         .finalize()
         .unwrap();
 
-    let entry_routes = routes![
-        queries::entry::get_all,
-        queries::entry::get_verified,
-        queries::entry::get_unverified,
-        mutations::entry::post_new,
-        mutations::entry::verify_accept,
-        mutations::entry::verify_reject
-    ];
-
-    let user_routes = routes![queries::user::get_all, mutations::user::post_new];
-
     rocket::custom(config)
         .attach(CORS)
         .attach(DBPool::fairing())
-        .mount("/entry", entry_routes)
-        .mount("/user", user_routes)
+        .mount("/user", mutations::user::get_routes())
+        .mount("/user", queries::user::get_routes())
+        .mount("/entry", queries::entry::get_routes())
+        .mount("/entry", mutations::entry::get_routes())
 }
