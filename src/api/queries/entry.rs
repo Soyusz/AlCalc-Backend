@@ -21,6 +21,6 @@ fn get_unverified(conn: DBPool) -> Json<Vec<Entry>> {
     Json(get_unverified_entries(conn))
 }
 
-pub fn get_routes() -> std::vec::Vec<Route> {
+pub fn get_routes() -> Vec<Route> {
     routes![get_all, get_verified, get_unverified]
 }

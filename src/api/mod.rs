@@ -5,6 +5,7 @@ use rocket::http::Header;
 use rocket::{Request, Response, Rocket};
 use std::collections::HashMap;
 
+pub mod middlewares;
 pub mod mutations;
 pub mod queries;
 

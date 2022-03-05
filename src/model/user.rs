@@ -5,6 +5,7 @@ use uuid::Uuid;
 
 #[derive(Clone, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "users"]
+#[derive(Debug)]
 pub struct User {
     pub id: Uuid,
     pub name: String,
