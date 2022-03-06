@@ -3,12 +3,12 @@ use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Auth {
     pub user_id: Uuid,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AuthReturn {
     pub token: String,
 }

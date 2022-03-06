@@ -1,3 +1,4 @@
+use crate::api::middlewares::auth_user::Auth;
 use crate::api::DBPool;
 use crate::db::entry::NewEntry;
 use crate::model::entry::Entry;
@@ -8,7 +9,11 @@ use rocket_contrib::json::Json;
 use uuid::Uuid;
 
 #[post("/", format = "application/json", data = "<new_entry>")]
-fn post_new(conn: DBPool, new_entry: Json<NewEntry>) -> Result<Json<Entry>, Json<bool>> {
+fn post_new(
+    _auth: Auth,
+    conn: DBPool,
+    new_entry: Json<NewEntry>,
+) -> Result<Json<Entry>, Json<bool>> {
     let entry = new_entry.into_inner();
     let res = insert_entry(entry, conn);
     match res {
