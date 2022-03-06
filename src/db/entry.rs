@@ -46,8 +46,8 @@ pub fn verify(id: Uuid, state: Option<bool>, conn: &PgConnection) -> Option<Entr
     }
 }
 
-pub fn add_new(entry: NewEntry, conn: &PgConnection) -> Option<Entry> {
-    let insert_entry = create_entry(entry);
+pub fn add_new(entry: NewEntry, user_id: Uuid, conn: &PgConnection) -> Option<Entry> {
+    let insert_entry = create_entry(entry, user_id);
 
     let query_res: Result<Vec<Uuid>, _> = diesel::insert_into(entries::table)
         .values(&insert_entry)
