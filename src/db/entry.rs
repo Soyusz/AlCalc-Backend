@@ -79,3 +79,10 @@ pub fn get_unverified(conn: &PgConnection) -> Vec<Entry> {
         .load::<Entry>(conn)
         .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
 }
+
+pub fn get_users(user_id: Uuid, conn: &PgConnection) -> Vec<Entry> {
+    all_entries
+        .filter(entries::user_id.eq(user_id))
+        .load::<Entry>(conn)
+        .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
+}
