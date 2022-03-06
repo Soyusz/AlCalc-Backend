@@ -60,6 +60,7 @@ dependencies = [
 name = "alcalc_backend"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "custom_derive",
  "diesel",
  "dotenv",

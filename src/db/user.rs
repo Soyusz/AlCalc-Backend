@@ -26,6 +26,18 @@ pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<User> {
     }
 }
 
+pub fn get_by_email(email: String, conn: &PgConnection) -> Option<User> {
+    let user_vec = all_users
+        .filter(users::email.eq_all(email))
+        .load::<User>(conn)
+        .unwrap_or_else(|_| -> Vec<User> { vec![] });
+    if user_vec.len() == 0 {
+        None
+    } else {
+        Some(user_vec[0].clone())
+    }
+}
+
 pub fn get_all(conn: &PgConnection) -> Vec<User> {
     all_users
         .load::<User>(conn)

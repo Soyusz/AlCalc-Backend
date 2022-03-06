@@ -1,33 +1,42 @@
-use jsonwebtoken::{decode, encode, errors, DecodingKey, EncodingKey, Header, Validation};
+use chrono::Utc;
+use jsonwebtoken::{
+    decode, encode, errors, Algorithm, DecodingKey, EncodingKey, Header, Validation,
+};
+use uuid::Uuid;
+
+const JWT_SECRET: &[u8] = b"hwehjkawehjke";
 
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct TokenPayload {
-    user_id: String,
+    pub user_id: Uuid,
+    exp: usize,
 }
 
-pub fn create(user_id: &String) -> Result<String, errors::Error> {
-    let SECRET_KEY: u8 = std::env::var("JWT_SECRET").unwrap().parse::<u8>().unwrap();
+pub fn create(user_id: &Uuid) -> Result<String, errors::Error> {
+    let expiration = Utc::now()
+        .checked_add_signed(chrono::Duration::days(30))
+        .expect("valid timestamp")
+        .timestamp();
 
     let payload = TokenPayload {
-        user_id: user_id.to_string(),
+        user_id: *user_id,
+        exp: expiration as usize,
     };
 
-    encode(
-        &Header::default(),
-        &payload,
-        &EncodingKey::from_secret(&[SECRET_KEY]),
-    )
+    let header = Header::new(Algorithm::HS512);
+
+    encode(&header, &payload, &EncodingKey::from_secret(JWT_SECRET))
 }
 
 pub fn validate(token: String) -> Result<TokenPayload, errors::Error> {
-    let SECRET_KEY: u8 = std::env::var("JWT_SECRET").unwrap().parse::<u8>().unwrap();
-
-    let res = decode::<TokenPayload>(
+    let decoded = decode::<TokenPayload>(
         &token,
-        &DecodingKey::from_secret(&[SECRET_KEY]),
-        &Validation::default(),
-    )
-    .unwrap();
+        &DecodingKey::from_secret(JWT_SECRET),
+        &Validation::new(Algorithm::HS512),
+    );
 
-    Result::Ok(res.claims)
+    match decoded {
+        Ok(x) => Ok(x.claims),
+        Err(err) => Err(err),
+    }
 }

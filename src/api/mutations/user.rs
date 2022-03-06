@@ -1,7 +1,8 @@
+use crate::api::middlewares::auth_user::AuthReturn;
 use crate::api::DBPool;
 use crate::db::user::NewUser;
 use crate::model::user::User as UserModel;
-use crate::services::user as UserService;
+use crate::services::user::{self as UserService, LoginCred};
 use rocket::{post, routes, Route};
 use rocket_contrib::json::Json;
 
@@ -15,6 +16,14 @@ fn post_new(conn: DBPool, new_user: Json<NewUser>) -> Result<Json<UserModel>, Js
     }
 }
 
+#[post("/login", format = "application/json", data = "<login_cred>")]
+fn login(conn: DBPool, login_cred: Json<LoginCred>) -> Result<Json<AuthReturn>, Json<bool>> {
+    match UserService::login(login_cred.into_inner(), conn) {
+        Ok(res) => Ok(Json(AuthReturn { token: res })),
+        Err(_) => Err(Json(false)),
+    }
+}
+
 pub fn get_routes() -> std::vec::Vec<Route> {
-    routes![post_new]
+    routes![post_new, login]
 }

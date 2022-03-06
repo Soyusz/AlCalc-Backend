@@ -1,1 +1,1 @@
-pub mod authUser;
+pub mod auth_user;
