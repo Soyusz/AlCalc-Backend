@@ -31,14 +31,14 @@ pub fn get_all(conn: DBPool) -> Vec<User> {
 pub struct LoginCred {
     email: String,
 }
+
 pub fn login(cred: LoginCred, conn: DBPool) -> Result<String, String> {
     let user = get_by_email(cred.email, conn);
-    let res = match user {
+    match user {
         Some(u) => match TokenModel::create(&u.id) {
-            Result::Ok(token) => Result::Ok(token),
-            Result::Err(_) => Result::Err("".to_string()),
+            Ok(token) => Ok(token),
+            Err(_) => Err(String::from("")),
         },
-        None => Result::Err("".to_string()),
-    };
-    res
+        None => Err(String::from("")),
+    }
 }
