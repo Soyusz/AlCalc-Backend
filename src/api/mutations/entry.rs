@@ -10,12 +10,12 @@ use uuid::Uuid;
 
 #[post("/", format = "application/json", data = "<new_entry>")]
 fn post_new(
-    _auth: Auth,
+    auth: Auth,
     conn: DBPool,
     new_entry: Json<NewEntry>,
 ) -> Result<Json<Entry>, Json<bool>> {
     let entry = new_entry.into_inner();
-    let res = insert_entry(entry, conn);
+    let res = insert_entry(entry, auth.user_id, conn);
     match res {
         Ok(s) => Ok(Json(s)),
         Err(e) => Err(Json(e)),

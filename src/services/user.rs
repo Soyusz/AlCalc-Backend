@@ -3,6 +3,7 @@ use crate::db::user as dbUser;
 use crate::model::token as TokenModel;
 use crate::model::user::User;
 use crate::services::email as EmailService;
+use crate::sql_types::UserRoles;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -23,8 +24,19 @@ pub fn get_by_email(email: String, conn: DBPool) -> Option<User> {
     dbUser::get_by_email(email, &conn)
 }
 
-pub fn get_all(conn: DBPool) -> Vec<User> {
-    dbUser::get_all(&conn)
+pub fn check_admin(user_id: Uuid, conn: &DBPool) -> bool {
+    let user = dbUser::get_by_id(user_id, &conn);
+    match user {
+        Some(u) => u.role == UserRoles::Admin,
+        None => false,
+    }
+}
+
+pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, String> {
+    match check_admin(user_id, &conn) {
+        true => Ok(dbUser::get_all(&conn)),
+        false => Err("".to_string()),
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]

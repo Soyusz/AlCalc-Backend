@@ -6,8 +6,8 @@ use rocket::{get, routes, Route};
 use rocket_contrib::json::Json;
 
 #[get("/")]
-fn get_all(conn: DBPool) -> Json<Vec<UserModel>> {
-    Json(UserService::get_all(conn))
+fn get_all(arg: Auth, conn: DBPool) -> Json<Result<Vec<UserModel>, String>> {
+    Json(UserService::get_all(arg.user_id, conn))
 }
 
 #[get("/admin", rank = 1)]

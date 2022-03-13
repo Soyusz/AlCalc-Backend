@@ -46,8 +46,8 @@ pub fn verify(id: Uuid, state: Option<bool>, conn: &PgConnection) -> Option<Entr
     }
 }
 
-pub fn add_new(entry: NewEntry, conn: &PgConnection) -> Option<Entry> {
-    let insert_entry = create_entry(entry);
+pub fn add_new(entry: NewEntry, user_id: Uuid, conn: &PgConnection) -> Option<Entry> {
+    let insert_entry = create_entry(entry, user_id);
 
     let query_res: Result<Vec<Uuid>, _> = diesel::insert_into(entries::table)
         .values(&insert_entry)
@@ -76,6 +76,13 @@ pub fn get_verified(conn: &PgConnection) -> Vec<Entry> {
 pub fn get_unverified(conn: &PgConnection) -> Vec<Entry> {
     all_entries
         .filter(entries::verified.is_null())
+        .load::<Entry>(conn)
+        .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
+}
+
+pub fn get_users(user_id: Uuid, conn: &PgConnection) -> Vec<Entry> {
+    all_entries
+        .filter(entries::user_id.eq(user_id))
         .load::<Entry>(conn)
         .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
 }
