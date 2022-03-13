@@ -1,16 +1,17 @@
+use crate::sql_types::UserRoles;
 use crate::{db::user::NewUser, schema::users};
 use diesel::{self, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Clone, Deserialize, Serialize, Queryable, Insertable)]
+#[derive(Clone, Deserialize, Serialize, Queryable, Insertable, Debug)]
 #[table_name = "users"]
-#[derive(Debug)]
 pub struct User {
     pub id: Uuid,
     pub name: String,
     pub email: String,
     pub email_verified: bool,
+    pub role: UserRoles,
 }
 
 pub fn create_user(user: NewUser) -> User {
@@ -19,5 +20,6 @@ pub fn create_user(user: NewUser) -> User {
         name: user.name,
         email: user.email,
         email_verified: false,
+        role: UserRoles::User,
     }
 }
