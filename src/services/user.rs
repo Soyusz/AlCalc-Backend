@@ -8,13 +8,12 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub fn insert_user(user: dbUser::NewUser, conn: DBPool) -> Result<User, &'static str> {
-    match dbUser::add_new(user, &conn) {
-        Some(u) => {
+    dbUser::add_new(user, &conn)
+        .ok_or("cannot create user")
+        .map(|u| {
             EmailService::email_verification(&u.email);
-            Ok(u)
-        }
-        None => Err("Cannot create user"),
-    }
+            u
+        })
 }
 
 pub fn get_user(id: Uuid, conn: DBPool) -> Option<User> {
@@ -25,19 +24,17 @@ pub fn get_by_email(email: String, conn: DBPool) -> Option<User> {
     dbUser::get_by_email(email, &conn)
 }
 
-pub fn check_admin(user_id: Uuid, conn: &DBPool) -> bool {
-    let user = dbUser::get_by_id(user_id, &conn);
-    match user {
-        Some(u) => u.role == UserRoles::Admin,
-        None => false,
-    }
+pub fn check_admin(user_id: Uuid, conn: &DBPool) -> Result<User, &'static str> {
+    dbUser::get_by_id(user_id, &conn)
+        .ok_or("invalid user_id")
+        .and_then(|u| match u.role == UserRoles::Admin {
+            true => Ok(u),
+            false => Err("unauthorized"),
+        })
 }
 
-pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, ()> {
-    match check_admin(user_id, &conn) {
-        true => Ok(dbUser::get_all(&conn)),
-        false => Err(()),
-    }
+pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, &'static str> {
+    check_admin(user_id, &conn).map(|_| dbUser::get_all(&conn))
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -45,13 +42,8 @@ pub struct LoginCred {
     email: String,
 }
 
-pub fn login(cred: LoginCred, conn: DBPool) -> Result<String, String> {
-    let user = get_by_email(cred.email, conn);
-    match user {
-        Some(u) => match TokenModel::create(&u.id) {
-            Ok(token) => Ok(token),
-            Err(_) => Err(String::from("")),
-        },
-        None => Err(String::from("")),
-    }
+pub fn login(cred: LoginCred, conn: DBPool) -> Result<String, &'static str> {
+    get_by_email(cred.email, conn)
+        .ok_or("user not found")
+        .and_then(|u| TokenModel::create(&u.id))
 }

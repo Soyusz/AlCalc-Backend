@@ -18,8 +18,8 @@ fn get_unverified(
     conn: DBPool,
 ) -> Result<Json<Vec<Entry>>, status::BadRequest<&'static str>> {
     match UserService::check_admin(auth.user_id, &conn) {
-        true => Ok(Json(EntryService::get_unverified_entries(conn))),
-        false => Err(status::BadRequest(None)),
+        Ok(_) => Ok(Json(EntryService::get_unverified_entries(conn))),
+        Err(_) => Err(status::BadRequest(None)),
     }
 }
 #[get("/unverified", rank = 2)]
