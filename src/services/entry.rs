@@ -33,6 +33,6 @@ pub fn get_unverified_entries(conn: DBPool) -> Vec<Entry> {
     get_unverified(&conn)
 }
 
-pub fn get_users_entries(user_id: Uuid, conn: DBPool) -> Vec<Entry> {
+pub fn get_user_entries(user_id: Uuid, conn: DBPool) -> Vec<Entry> {
     get_users(user_id, &conn)
 }

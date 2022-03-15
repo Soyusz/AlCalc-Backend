@@ -7,12 +7,13 @@ use crate::sql_types::UserRoles;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-pub fn insert_user(user: dbUser::NewUser, conn: DBPool) -> Result<User, bool> {
-    EmailService::email_verification(&user.email);
-    let res = dbUser::add_new(user, &conn);
-    match res {
-        Some(e) => Ok(e),
-        None => Err(true),
+pub fn insert_user(user: dbUser::NewUser, conn: DBPool) -> Result<User, &'static str> {
+    match dbUser::add_new(user, &conn) {
+        Some(u) => {
+            EmailService::email_verification(&u.email);
+            Ok(u)
+        }
+        None => Err("Cannot create user"),
     }
 }
 
@@ -32,10 +33,10 @@ pub fn check_admin(user_id: Uuid, conn: &DBPool) -> bool {
     }
 }
 
-pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, String> {
+pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, ()> {
     match check_admin(user_id, &conn) {
         true => Ok(dbUser::get_all(&conn)),
-        false => Err("".to_string()),
+        false => Err(()),
     }
 }
 
