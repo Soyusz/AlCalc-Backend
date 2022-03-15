@@ -1,4 +1,4 @@
-use crate::api::middlewares::auth_user::Auth;
+use crate::api::utils::{auth_user::Auth, Response};
 use crate::api::DBPool;
 use crate::model::entry::Entry;
 use crate::services::entry as EntryService;
@@ -13,10 +13,7 @@ fn get_verified(conn: DBPool) -> Json<Vec<Entry>> {
 }
 
 #[get("/unverified", rank = 1)]
-fn get_unverified(
-    auth: Auth,
-    conn: DBPool,
-) -> Result<Json<Vec<Entry>>, status::BadRequest<&'static str>> {
+fn get_unverified(auth: Auth, conn: DBPool) -> Response<Vec<Entry>> {
     match UserService::check_admin(auth.user_id, &conn) {
         Ok(_) => Ok(Json(EntryService::get_unverified_entries(conn))),
         Err(_) => Err(status::BadRequest(None)),
