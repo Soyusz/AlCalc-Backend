@@ -14,10 +14,10 @@ fn get_verified(conn: DBPool) -> Json<Vec<Entry>> {
 
 #[get("/unverified", rank = 1)]
 fn get_unverified(auth: Auth, conn: DBPool) -> Response<Vec<Entry>> {
-    match UserService::check_admin(auth.user_id, &conn) {
-        Ok(_) => Ok(Json(EntryService::get_unverified_entries(conn))),
-        Err(_) => Err(status::BadRequest(None)),
-    }
+    UserService::check_admin(auth.user_id, &conn)
+        .map(|_| EntryService::get_unverified_entries(conn))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
 }
 #[get("/unverified", rank = 2)]
 fn get_unverified_unauth() -> status::Unauthorized<&'static str> {
