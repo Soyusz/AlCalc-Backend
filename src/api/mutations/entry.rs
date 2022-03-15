@@ -4,11 +4,12 @@ use crate::db::entry::NewEntry;
 use crate::model::entry::Entry;
 use crate::services::entry::insert_entry;
 use crate::services::entry::verify_entry;
+use rocket::response::status;
 use rocket::{post, put, routes, Route};
 use rocket_contrib::json::Json;
 use uuid::Uuid;
 
-#[post("/", format = "application/json", data = "<new_entry>")]
+#[post("/", format = "application/json", data = "<new_entry>", rank = 1)]
 fn post_new(
     auth: Auth,
     conn: DBPool,
@@ -20,6 +21,10 @@ fn post_new(
         Ok(s) => Ok(Json(s)),
         Err(e) => Err(Json(e)),
     }
+}
+#[post("/", rank = 2)]
+fn post_new_invalid() -> status::BadRequest<&'static str> {
+    status::BadRequest(Some("Invalid payload"))
 }
 
 #[put("/<id_string>/accept")]
@@ -57,5 +62,5 @@ fn verify_reject(id_string: String, conn: DBPool) -> Result<Json<Entry>, Json<bo
 }
 
 pub fn get_routes() -> std::vec::Vec<Route> {
-    routes![post_new, verify_accept, verify_reject]
+    routes![post_new, verify_accept, verify_reject, post_new_invalid]
 }
