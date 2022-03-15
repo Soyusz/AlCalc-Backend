@@ -32,10 +32,10 @@ pub fn check_admin(user_id: Uuid, conn: &DBPool) -> bool {
     }
 }
 
-pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, String> {
+pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, ()> {
     match check_admin(user_id, &conn) {
         true => Ok(dbUser::get_all(&conn)),
-        false => Err("".to_string()),
+        false => Err(()),
     }
 }
 
