@@ -8,6 +8,7 @@ name = "lib"
 path = "src/lib.rs"
 
 [dependencies]
+diesel-derive-enum = { version = "0.4", features = ["postgres"] }
 rocket = "0.4.10-rc.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -15,6 +16,8 @@ custom_derive ="0.1.7"
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
 diesel = { version = "1.4.5", features = ["chrono", "postgres", "r2d2", "uuidv07"]}
 dotenv = "0.15.0"
+jsonwebtoken = "7.2.0"
+chrono = "0.4"
 
 [dependencies.rocket_contrib]
 version = "0.4.10"
