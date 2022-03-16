@@ -1,4 +1,4 @@
-use crate::api::middlewares::auth_user::Auth;
+use crate::api::utils::{auth_user::Auth, Response};
 use crate::api::DBPool;
 use crate::db::entry::NewEntry;
 use crate::model::entry::Entry;
@@ -10,17 +10,11 @@ use rocket_contrib::json::Json;
 use uuid::Uuid;
 
 #[post("/", format = "application/json", data = "<new_entry>", rank = 1)]
-fn post_new(
-    auth: Auth,
-    conn: DBPool,
-    new_entry: Json<NewEntry>,
-) -> Result<Json<Entry>, Json<bool>> {
-    let entry = new_entry.into_inner();
-    let res = insert_entry(entry, auth.user_id, conn);
-    match res {
-        Ok(s) => Ok(Json(s)),
-        Err(e) => Err(Json(e)),
-    }
+fn post_new(auth: Auth, conn: DBPool, new_entry: Json<NewEntry>) -> Response<Entry> {
+    Ok(new_entry.into_inner())
+        .and_then(|entry| insert_entry(entry, auth.user_id, conn))
+        .map_err(|e| status::BadRequest(Some(e)))
+        .map(|r| Json(r))
 }
 #[post("/", rank = 2)]
 fn post_new_invalid() -> status::BadRequest<&'static str> {
@@ -28,37 +22,21 @@ fn post_new_invalid() -> status::BadRequest<&'static str> {
 }
 
 #[put("/<id_string>/accept")]
-fn verify_accept(id_string: String, conn: DBPool) -> Result<Json<Entry>, Json<bool>> {
-    let id_res = Uuid::parse_str(id_string.as_str());
-    let id;
-    match id_res {
-        Ok(r) => {
-            id = r;
-        }
-        Err(_) => return Err(Json(false)),
-    }
-    let res = verify_entry(id, true, conn);
-    match res {
-        Ok(r) => Ok(Json(r)),
-        Err(e) => Err(Json(e)),
-    }
+fn verify_accept(id_string: String, conn: DBPool) -> Response<Entry> {
+    Uuid::parse_str(id_string.as_str())
+        .map_err(|_| "cannot parse id")
+        .and_then(|id| verify_entry(id, true, conn))
+        .map_err(|e| status::BadRequest(Some(e)))
+        .map(|r| Json(r))
 }
 
 #[put("/<id_string>/reject")]
-fn verify_reject(id_string: String, conn: DBPool) -> Result<Json<Entry>, Json<bool>> {
-    let id_res = Uuid::parse_str(id_string.as_str());
-    let id;
-    match id_res {
-        Ok(r) => {
-            id = r;
-        }
-        Err(_) => return Err(Json(false)),
-    }
-    let res = verify_entry(id, false, conn);
-    match res {
-        Ok(r) => Ok(Json(r)),
-        Err(e) => Err(Json(e)),
-    }
+fn verify_reject(id_string: String, conn: DBPool) -> Response<Entry> {
+    Uuid::parse_str(id_string.as_str())
+        .map_err(|_| "cannot parse id")
+        .and_then(|id| verify_entry(id, false, conn))
+        .map_err(|e| status::BadRequest(Some(e)))
+        .map(|r| Json(r))
 }
 
 pub fn get_routes() -> std::vec::Vec<Route> {

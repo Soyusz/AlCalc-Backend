@@ -11,7 +11,7 @@ pub struct TokenPayload {
     exp: usize,
 }
 
-pub fn create(user_id: &Uuid) -> Result<String, errors::Error> {
+pub fn create(user_id: &Uuid) -> Result<String, &'static str> {
     let jwt_secret = env::var("ROCKET_PORT").unwrap();
 
     let expiration = Utc::now()
@@ -28,7 +28,7 @@ pub fn create(user_id: &Uuid) -> Result<String, errors::Error> {
 
     let header = Header::new(Algorithm::HS512);
 
-    encode(&header, &payload, &key)
+    encode(&header, &payload, &key).map_err(|_| "cannot create token")
 }
 
 pub fn validate(token: String) -> Result<TokenPayload, errors::Error> {

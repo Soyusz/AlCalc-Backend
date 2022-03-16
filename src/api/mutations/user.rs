@@ -1,4 +1,4 @@
-use crate::api::middlewares::auth_user::AuthReturn;
+use crate::api::utils::{auth_user::AuthReturn, Response};
 use crate::api::DBPool;
 use crate::db::user::NewUser;
 use crate::model::user::User as UserModel;
@@ -8,15 +8,11 @@ use rocket::{post, routes, Route};
 use rocket_contrib::json::Json;
 
 #[post("/", format = "application/json", data = "<new_user>", rank = 1)]
-fn post_new(
-    conn: DBPool,
-    new_user: Json<NewUser>,
-) -> Result<Json<UserModel>, status::BadRequest<&'static str>> {
-    let user = new_user.into_inner();
-    match UserService::insert_user(user, conn) {
-        Ok(u) => Ok(Json(u)),
-        Err(e) => Err(status::BadRequest(Some(e))),
-    }
+fn post_new(conn: DBPool, new_user: Json<NewUser>) -> Response<UserModel> {
+    Ok(new_user.into_inner())
+        .and_then(|user| UserService::insert_user(user, conn))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
 }
 
 #[post("/", rank = 2)]
@@ -25,12 +21,14 @@ fn post_new_invalid() -> status::BadRequest<()> {
 }
 
 #[post("/login", format = "application/json", data = "<login_cred>", rank = 1)]
-fn login(conn: DBPool, login_cred: Json<LoginCred>) -> Result<Json<AuthReturn>, Json<bool>> {
-    match UserService::login(login_cred.into_inner(), conn) {
-        Ok(res) => Ok(Json(AuthReturn { token: res })),
-        Err(_) => Err(Json(false)),
-    }
+fn login(conn: DBPool, login_cred: Json<LoginCred>) -> Response<AuthReturn> {
+    Ok(())
+        .map(|_| login_cred.into_inner())
+        .and_then(|login_cred| UserService::login(login_cred, conn))
+        .map(|token| Json(AuthReturn { token: token }))
+        .map_err(|_| status::BadRequest(None))
 }
+
 #[post("/login", rank = 2)]
 fn login_invalid() -> status::BadRequest<&'static str> {
     status::BadRequest(Some("Invalid payload"))
