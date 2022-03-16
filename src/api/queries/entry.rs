@@ -7,6 +7,11 @@ use rocket::response::status;
 use rocket::{get, routes, Route};
 use rocket_contrib::json::Json;
 
+#[get("/")]
+fn get_all(conn: DBPool) -> Json<Vec<Entry>> {
+    Json(EntryService::get_all_entries(conn))
+}
+
 #[get("/verified")]
 fn get_verified(conn: DBPool) -> Json<Vec<Entry>> {
     Json(EntryService::get_verified_entries(conn))
@@ -39,6 +44,7 @@ pub fn get_routes() -> Vec<Route> {
         get_unverified,
         get_unverified_unauth,
         get_my,
-        get_my_unauth
+        get_my_unauth,
+        get_all
     ]
 }
