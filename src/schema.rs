@@ -1,5 +1,6 @@
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     entries (id) {
         id -> Uuid,
@@ -17,6 +18,19 @@ table! {
     use diesel::sql_types::*;
     use crate::sql_types::*;
 
+    posts (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        location -> Nullable<Varchar>,
+        title -> Varchar,
+        photos -> Array<Text>,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use crate::sql_types::*;
+
     users (id) {
         id -> Uuid,
         name -> Varchar,
@@ -27,5 +41,10 @@ table! {
 }
 
 joinable!(entries -> users (user_id));
+joinable!(posts -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(entries, users,);
+allow_tables_to_appear_in_same_query!(
+    entries,
+    posts,
+    users,
+);
