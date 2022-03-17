@@ -1,2 +1,2 @@
 pub mod entry;
-pub mod user;
+pub mod post;pub mod user;
