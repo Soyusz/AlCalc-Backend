@@ -1,8 +1,9 @@
 use dotenv::dotenv;
 use rocket::config::{Config, Environment, Value};
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Header;
+use rocket::http::{Header, Method};
 use rocket::{Request, Response, Rocket};
+use rocket_cors::{AllowedOrigins, CorsOptions};
 use std::collections::HashMap;
 
 pub mod mutations;
@@ -28,6 +29,7 @@ impl Fairing for CORS {
         response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
+    // Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
 }
 
 #[database("alcalc-db")]
@@ -50,11 +52,23 @@ pub fn init_routes() -> Rocket {
         .finalize()
         .unwrap();
 
+    let cors = CorsOptions::default()
+        .allowed_origins(AllowedOrigins::all())
+        .allowed_methods(
+            vec![Method::Get, Method::Post, Method::Patch]
+                .into_iter()
+                .map(From::from)
+                .collect(),
+        )
+        .allow_credentials(true);
+
     rocket::custom(config)
-        .attach(CORS)
+        .attach(cors.to_cors().unwrap())
         .attach(DBPool::fairing())
         .mount("/user", mutations::user::get_routes())
         .mount("/user", queries::user::get_routes())
         .mount("/entry", queries::entry::get_routes())
         .mount("/entry", mutations::entry::get_routes())
+        .mount("/post", mutations::post::get_routes())
+        .mount("/post", queries::post::get_routes())
 }
