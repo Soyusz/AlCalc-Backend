@@ -33,6 +33,7 @@ fn get_unverified_unauth() -> status::Unauthorized<&'static str> {
 fn get_my(auth: Auth, conn: DBPool) -> Json<Vec<Entry>> {
     Json(EntryService::get_user_entries(auth.user_id, conn))
 }
+
 #[get("/my", rank = 2)]
 fn get_my_unauth() -> status::Unauthorized<&'static str> {
     status::Unauthorized(Some("Unauthorized"))
