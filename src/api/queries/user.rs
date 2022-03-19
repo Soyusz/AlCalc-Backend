@@ -22,6 +22,7 @@ fn get_all(auth: Auth, conn: DBPool) -> Response<Vec<UserModel>> {
         .map(|r| Json(r))
         .map_err(|e| status::BadRequest(Some(e)))
 }
+
 #[get("/", rank = 2)]
 fn get_all_unauthorized() -> status::Unauthorized<()> {
     status::Unauthorized(None)
@@ -34,6 +35,7 @@ fn me(auth: Auth, conn: DBPool) -> Response<UserModel> {
         None => Err(status::BadRequest(Some("Invalid token"))),
     }
 }
+
 #[get("/me", rank = 2)]
 fn me_unauthorized() -> status::Unauthorized<()> {
     status::Unauthorized(None)
