@@ -71,4 +71,6 @@ pub fn init_routes() -> Rocket {
         .mount("/entry", mutations::entry::get_routes())
         .mount("/post", mutations::post::get_routes())
         .mount("/post", queries::post::get_routes())
+        .mount("/like", queries::like::get_routes())
+        .mount("/like", mutations::like::get_routes())
 }
