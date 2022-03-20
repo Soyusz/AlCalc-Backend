@@ -16,7 +16,12 @@ fn get_by_post(
     Ok(id_string.as_str())
         .and_then(|id| Uuid::parse_str(id))
         .map_err(|_| status::BadRequest(None))
-        .and_then(|id| Ok(Json(likeService::get_by_post(id, conn))))
+        .and_then(|id| {
+            match likeService::get_by_post(id, conn){
+                Ok(vect) => Ok(Json(vect)),
+                Err(_) => Err(status::BadRequest(None))
+            }
+        })
 }
 
 #[get("/", rank=1)]
@@ -24,7 +29,10 @@ fn get_by_user(
     auth: Auth,
     conn: DBPool,
 ) -> Response<Vec<Post>> {
-    Ok(Json(likeService::get_by_user(auth.user_id, conn)))
+    match likeService::get_by_user(auth.user_id, conn) {
+        Ok(vect) => Ok(Json(vect)),
+        Err(_) => Err(status::BadRequest(None))
+    }
 }
 
 #[get("/", rank = 2)]

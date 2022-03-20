@@ -3,13 +3,14 @@ use diesel::{self, PgConnection};
 use crate::model::post::Post;
 use crate::model::like::Like;
 use crate::model::user::User;
+use crate::sql_types;
 use crate::schema::likes::{
     self,
     id as like_id,
     dsl::likes as all_likes
 };
-use crate::db::post::get_by_id as get_post_by_id;
-use crate::db::user::get_by_id as get_user_by_id;
+use crate::schema::users;
+use crate::schema::posts;
 use diesel::prelude::*;
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<Like> {
@@ -64,29 +65,65 @@ pub fn like_post(
     }
 }
 
+pub fn check_like(
+    post_id: Uuid,
+    user_id: Uuid,
+    conn: &PgConnection
+) -> Result<Like,()> {
+    all_likes
+        .filter(likes::post_id.eq_all(post_id))
+        .filter(likes::user_id.eq_all(user_id))
+        .first::<Like>(conn)
+        .map_err(|_| ())
+}
+
+
 pub fn get_by_post(
     post_id: Uuid,
     conn: &PgConnection
-) -> Vec<User> {
-    all_likes
+) -> Result<Vec<User>,()> {
+    likes::table.inner_join(users::table)
         .filter(likes::post_id.eq_all(post_id))
-        .load::<Like>(conn)
-        .unwrap_or_else(|_| -> Vec<Like> {vec![]})
-        .into_iter() 
-        .map(|u| -> User {get_user_by_id(u.id,&conn).unwrap()})
-        .collect()
-         
+        .select((users::id,users::email,users::role,users::email_verified,users::name))
+        .load::<(Uuid,String,sql_types::UserRoles,bool,String)>(conn)
+        .map(|vect| {
+                vect.into_iter()
+                .map(|el| {
+                    User {
+                        id: el.0,
+                        email: el.1,
+                        role: el.2,
+                        email_verified: el.3,
+                        name: el.4
+                    }
+                })
+                .collect()
+        }) 
+        .map_err(|_| ())
 }
 
 pub fn get_by_user(
     user_id: Uuid,
     conn: &PgConnection
-) -> Vec<Post> {
-    all_likes
+) -> Result<Vec<Post>,()> {
+    /*
+    likes::table.inner_join(posts::table)
         .filter(likes::user_id.eq_all(user_id))
-        .load::<Like>(conn)
-        .unwrap_or_else(|_| -> Vec<Like> {vec![]})
-        .into_iter() 
-        .map(|u| -> Post {get_post_by_id(u.id,&conn).unwrap()})
-        .collect()
+        .select((posts::id,posts::user_id,posts::location,posts::title,posts::photos))
+        .load::<(Uuid,Uuid,String,String,Vec<String>)>(conn)
+        .map(|vect| {
+                vect.into_iter()
+                .map(|el| {
+                    User {
+                        id: el.0,
+                        email: el.1,
+                        role: el.2,
+                        email_verified: el.3,
+                        name: el.4
+                    }
+                })
+                .collect()
+        }) 
+        .map_err(|_| ()) */
+        Err(())
 }
