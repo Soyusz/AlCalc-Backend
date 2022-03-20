@@ -8,14 +8,14 @@ use crate::db::like as dbPost;
 pub fn get_by_post(
     post_id: Uuid,
     conn: DBPool
-) -> Vec<User> {
+) -> Result<Vec<User>,()> {
     dbPost::get_by_post(post_id, &conn)
 }
 
 pub fn get_by_user(
     user_id: Uuid,
     conn: DBPool
-) -> Vec<Post> {
+) -> Result<Vec<Post>,()> {
     dbPost::get_by_user(user_id, &conn)
 }
 
@@ -35,5 +35,8 @@ pub fn like(
     post_id: Uuid,
     conn: DBPool
 ) -> Option<Like> {
-    dbPost::like_post(user_id, post_id, &conn)
+    match dbPost::check_like(post_id, user_id, &conn) {
+        Err(_) => dbPost::like_post(user_id, post_id, &conn),
+        Ok(l) => Some(l)
+    }
 }
