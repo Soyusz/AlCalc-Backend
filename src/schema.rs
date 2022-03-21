@@ -11,6 +11,7 @@ table! {
         verified -> Nullable<Bool>,
         photo -> Varchar,
         user_id -> Uuid,
+        label -> Array<Entry_label>,
     }
 }
 

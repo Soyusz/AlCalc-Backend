@@ -1,8 +1,8 @@
 use uuid::Uuid;
-
+use crate::sql_types::EntryLabel;
 use crate::api::DBPool;
 use crate::db::entry::NewEntry;
-use crate::db::entry::{add_new, get_all, get_unverified, get_users, get_verified, verify};
+use crate::db::entry::{get_verified_tags,add_new, get_all, get_unverified, get_users, get_verified, verify};
 use crate::model::entry::Entry;
 
 pub fn get_all_entries(conn: DBPool) -> Vec<Entry> {
@@ -19,6 +19,10 @@ pub fn verify_entry(id: Uuid, state: bool, conn: DBPool) -> Result<Entry, &'stat
 
 pub fn get_verified_entries(conn: DBPool) -> Vec<Entry> {
     get_verified(&conn)
+}
+
+pub fn get_verified_entries_tags(conn: DBPool, tags: Vec<EntryLabel>) -> Vec<Entry> {
+    get_verified_tags(&conn, tags) 
 }
 
 pub fn get_unverified_entries(conn: DBPool) -> Vec<Entry> {

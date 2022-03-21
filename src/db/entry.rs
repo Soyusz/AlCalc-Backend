@@ -1,4 +1,5 @@
 use crate::model::entry::{create_entry, Entry};
+use crate::sql_types::EntryLabel;
 use crate::schema::entries;
 use crate::schema::entries::dsl::entries as all_entries;
 use crate::schema::entries::id as entry_id;
@@ -15,6 +16,7 @@ pub struct NewEntry {
     pub voltage: f64,
     pub volume: f64,
     pub photo: String,
+    pub label: Vec<EntryLabel>,
 }
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<Entry> {
@@ -69,6 +71,14 @@ pub fn add_new(entry: NewEntry, user_id: Uuid, conn: &PgConnection) -> Option<En
 pub fn get_verified(conn: &PgConnection) -> Vec<Entry> {
     all_entries
         .filter(entries::verified.eq_all(true))
+        .load::<Entry>(conn)
+        .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
+}
+
+pub fn get_verified_tags(conn: &PgConnection, tags: Vec<EntryLabel>) -> Vec<Entry> {
+    all_entries
+        .filter(entries::verified.eq_all(true))
+        .filter(entries::label.overlaps_with(tags))
         .load::<Entry>(conn)
         .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
 }
