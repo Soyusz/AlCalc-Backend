@@ -55,7 +55,7 @@ pub fn init_routes() -> Rocket {
     let cors = CorsOptions::default()
         .allowed_origins(AllowedOrigins::all())
         .allowed_methods(
-            vec![Method::Get, Method::Post, Method::Patch]
+            vec![Method::Get, Method::Post, Method::Patch, Method::Delete]
                 .into_iter()
                 .map(From::from)
                 .collect(),
