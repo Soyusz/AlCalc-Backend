@@ -6,6 +6,7 @@ use crate::services::email as EmailService;
 use crate::sql_types::UserRoles;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use crate::services::image as ImageService;
 
 pub fn insert_user(user: NewUser, conn: DBPool) -> Result<User, &'static str> {
     dbUser::add_new(user, &conn)
@@ -45,4 +46,10 @@ pub fn login(cred: LoginCred, conn: DBPool) -> Result<String, &'static str> {
     get_by_email(cred.email, conn)
         .ok_or("user not found")
         .and_then(|u| TokenModel::create(&u.id))
+}
+
+pub fn update_photo(photo: String, user_id: Uuid, conn: &DBPool) -> Result<User, &'static str>{
+    ImageService::create_from_base(photo, conn)
+    .map(|i| ImageService::gen_link(i))
+    .and_then(|link| dbUser::update_photo(user_id, Some(link), conn) )
 }

@@ -1,9 +1,10 @@
-use crate::api::utils::{auth_user::AuthReturn, Response};
+use crate::api::utils::{auth_user::Auth, Response};
+use crate::api::utils::structs::{AuthReturn, PhotoArg };
 use crate::api::DBPool;
 use crate::model::user::{User as UserModel, NewUser};
 use crate::services::user::{self as UserService, LoginCred};
 use rocket::response::status;
-use rocket::{post, routes, Route};
+use rocket::{post,put, routes, Route};
 use rocket_contrib::json::Json;
 
 #[post("/", format = "application/json", data = "<new_user>", rank = 1)]
@@ -33,6 +34,14 @@ fn login_invalid() -> status::BadRequest<&'static str> {
     status::BadRequest(Some("Invalid payload"))
 }
 
+#[put("/photo", format = "application/json", data = "<arg>" )]
+fn put_photo(arg: Json<PhotoArg>, auth: Auth ,conn: DBPool) -> Result<Option<String>, status::BadRequest<&'static str>> {
+    Ok(arg.into_inner())
+    .and_then( |b| UserService::update_photo(b.photo, auth.user_id, &conn) )
+    .map(|r| r.photo)
+    .map_err(|e| status::BadRequest(Some(e)))
+}
+
 pub fn get_routes() -> std::vec::Vec<Route> {
-    routes![post_new, post_new_invalid, login, login_invalid]
+    routes![post_new, post_new_invalid, login, login_invalid, put_photo]
 }

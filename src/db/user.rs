@@ -55,3 +55,11 @@ pub fn add_new(user: NewUser, conn: &PgConnection) -> Option<User> {
         Err(_) => None,
     }
 }
+
+pub fn update_photo(id: Uuid, new_photo: Option<String>, conn: &PgConnection) -> Result<User, &'static str> {
+    use crate::schema::users::photo;
+    diesel::update(all_users.find(id))
+        .set(photo.eq(new_photo))
+        .get_result::<User>(conn)
+        .map_err(|_| "Cannot update user")
+}

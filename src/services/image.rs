@@ -22,7 +22,7 @@ pub fn create_from_base(base: String, conn: &DBPool) -> Result<Image, &'static s
 }
 
 pub fn gen_link(image: Image) -> String {
-    let be_url = env::var("ROCKET_PORT").unwrap();
+    let be_url = env::var("BE_URL").unwrap();
     be_url + "/photo/" + &image.id.to_string().to_string()
 }
 

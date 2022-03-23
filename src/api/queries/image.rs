@@ -1,4 +1,3 @@
-use crate::api::utils::{auth_user::Auth, Response};
 use crate::api::DBPool;
 use rocket::{get, routes, Route};
 use crate::model::image::Image;
