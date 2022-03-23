@@ -84,8 +84,8 @@ pub fn get_by_post(
 ) -> Result<Vec<User>,()> {
     likes::table.inner_join(users::table)
         .filter(likes::post_id.eq_all(post_id))
-        .select((users::id,users::email,users::role,users::email_verified,users::name))
-        .load::<(Uuid,String,sql_types::UserRoles,bool,String)>(conn)
+        .select((users::id,users::email,users::role,users::email_verified,users::name, users::photo))
+        .load::<(Uuid,String,sql_types::UserRoles,bool,String,Option<String>)>(conn)
         .map(|vect| {
                 vect.into_iter()
                 .map(|el| {
@@ -94,7 +94,8 @@ pub fn get_by_post(
                         email: el.1,
                         role: el.2,
                         email_verified: el.3,
-                        name: el.4
+                        name: el.4,
+                        photo: el.5
                     }
                 })
                 .collect()
