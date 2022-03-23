@@ -69,6 +69,7 @@ dependencies = [
 name = "alcalc_backend"
 version = "0.1.0"
 dependencies = [
+ "base64 0.13.0",
  "chrono",
  "custom_derive",
  "diesel",
