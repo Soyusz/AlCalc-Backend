@@ -1,18 +1,10 @@
-use crate::model::user::{create_user, User};
+use crate::model::user::{create_user, User, NewUser};
 use crate::schema::users;
 use crate::schema::users::dsl::users as all_users;
 use crate::schema::users::id as user_id;
 use diesel::prelude::*;
 use diesel::{self, PgConnection};
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-#[derive(Insertable, Clone, Deserialize, Serialize)]
-#[table_name = "users"]
-pub struct NewUser {
-    pub name: String,
-    pub email: String,
-}
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<User> {
     let user_vec = all_users

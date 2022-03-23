@@ -1,13 +1,13 @@
 use crate::api::DBPool;
 use crate::db::user as dbUser;
 use crate::model::token as TokenModel;
-use crate::model::user::User;
+use crate::model::user::{User, NewUser};
 use crate::services::email as EmailService;
 use crate::sql_types::UserRoles;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-pub fn insert_user(user: dbUser::NewUser, conn: DBPool) -> Result<User, &'static str> {
+pub fn insert_user(user: NewUser, conn: DBPool) -> Result<User, &'static str> {
     dbUser::add_new(user, &conn)
         .ok_or("cannot create user")
         .map(|u| {
@@ -36,7 +36,6 @@ pub fn check_admin(user_id: Uuid, conn: &DBPool) -> Result<User, &'static str> {
 pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, &'static str> {
     check_admin(user_id, &conn).map(|_| dbUser::get_all(&conn))
 }
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct LoginCred {
     email: String,
