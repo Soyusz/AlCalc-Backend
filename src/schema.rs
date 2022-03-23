@@ -58,7 +58,7 @@ table! {
         email -> Varchar,
         email_verified -> Bool,
         role -> User_role,
-        photo -> Varchar,
+        photo -> Nullable<Varchar>,
     }
 }
 

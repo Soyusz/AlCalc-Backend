@@ -12,6 +12,7 @@ pub struct User {
     pub email: String,
     pub email_verified: bool,
     pub role: UserRoles,
+    pub photo: Option<String>
 }
 
 #[derive(Deserialize, Serialize)]
@@ -27,5 +28,6 @@ pub fn create_user(user: NewUser) -> User {
         email: user.email,
         email_verified: false,
         role: UserRoles::User,
+        photo: None
     }
 }
