@@ -2,6 +2,7 @@ use crate::api::DBPool;
 use crate::db::post::{self as PostRepo, NewPost};
 use crate::model::post::Post;
 use uuid::Uuid;
+use crate::services::image as ImageService;
 
 pub fn get_all(conn: DBPool) -> Vec<Post> {
     PostRepo::get_all(&conn)
