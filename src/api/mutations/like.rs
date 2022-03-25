@@ -15,8 +15,9 @@ pub fn like(
 ) -> Response<Like> {
     Ok(id_string.as_str())
         .and_then(|id| Uuid::parse_str(id))
-        .map_err(|_| status::BadRequest(None))
-        .and_then(|id| likeService::like(auth.user_id, id,conn).ok_or(status::BadRequest(None)))
+        .map_err(|_| "Invalid id")
+        .and_then(|id| likeService::like(auth.user_id, id,conn))
+        .map_err(|e| status::BadRequest(Some(e)))
         .map(|r| Json(r))
 
 }
@@ -29,8 +30,9 @@ pub fn unlike(
 ) -> Response<()> {
     Ok(id_string.as_str())
         .and_then(|id| Uuid::parse_str(id))
-        .map_err(|_| status::BadRequest(None))
-        .and_then(|id| likeService::unlike(auth.user_id, id,conn).ok_or(status::BadRequest(None)))
+        .map_err(|_| "Invalid id")
+        .and_then(|id| likeService::unlike(auth.user_id, id,conn))
+        .map_err(|e| status::BadRequest(Some(e)))
         .map(|r| Json(r))
 }
 
