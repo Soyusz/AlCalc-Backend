@@ -10,7 +10,6 @@ use crate::services::image as ImageService;
 
 pub fn insert_user(user: NewUser, conn: DBPool) -> Result<User, &'static str> {
     dbUser::add_new(user, &conn)
-        .ok_or("cannot create user")
         .map(|u| {
             EmailService::email_verification(&u.email);
             u
