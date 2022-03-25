@@ -7,31 +7,18 @@ use crate::schema::images::id as image_id;
 use crate::schema::images;
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<Image> {
-    let vec = all_images
+    all_images
         .find(id)
-        .load::<Image>(conn)
-        .unwrap_or_else(|_| -> Vec<Image> { vec![] });
-    if vec.len() == 0 {
-        None
-    } else {
-        Some(vec[0].clone())
-    }
+        .first::<Image>(conn)
+        .ok()
 }
 
-pub fn add_new(image: Image, conn: &PgConnection) -> Option<Image> {
-    let query_res: Result<Vec<Uuid>, _> = diesel::insert_into(images::table)
+pub fn add_new(image: Image, conn: &PgConnection) -> Result<Image, &'static str> {
+    diesel::insert_into(images::table)
         .values(&image)
         .returning(image_id)
-        .get_results(conn);
-
-    match query_res {
-        Ok(v) => {
-            let new_image = get_by_id(v[0], conn).clone();
-            match new_image {
-                Some(s) => Some(s),
-                None => None,
-            }
-        }
-        Err(_) => None,
-    }
+        .get_results(conn)
+        .map_err(|_| () )
+        .and_then( |v| get_by_id(v[0], conn ).ok_or(()) )
+        .map_err(|_| "Insert failed")
 }

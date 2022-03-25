@@ -12,7 +12,7 @@ pub fn base_to_blob(base_string: String) -> Result<Vec<u8>, &'static str>{
 
 pub fn create_from_blob(value: Vec<u8>, conn: &DBPool) -> Result<Image, &'static str> {
     Ok(Image::create_image(value))
-    .and_then(|i|  ImageFactory::add_new(i, conn).ok_or("cannot insert image"))
+    .and_then(|i|  ImageFactory::add_new(i, conn) )
     
 }
 
