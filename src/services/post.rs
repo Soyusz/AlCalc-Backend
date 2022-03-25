@@ -20,5 +20,5 @@ pub fn get_feed(_: Uuid, conn: &DBPool) -> Vec<Post> {
 }
 
 pub fn insert(post: NewPost, user_id: Uuid, conn: DBPool) -> Result<Post, &'static str> {
-    PostRepo::add_new(user_id, post, &conn).ok_or("cannot insert post")
+    PostRepo::add_new(user_id, post, &conn)
 }
