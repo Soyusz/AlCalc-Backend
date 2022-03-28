@@ -7,8 +7,7 @@ use diesel::{self, PgConnection};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Insertable, Clone, Deserialize, Serialize)]
-#[table_name = "posts"]
+#[derive(Deserialize, Serialize)]
 pub struct NewPost {
     pub location: Option<String>,
     pub title: String,
@@ -16,15 +15,10 @@ pub struct NewPost {
 }
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<Post> {
-    let post_vec = all_posts
+    all_posts
         .find(id)
-        .load::<Post>(conn)
-        .unwrap_or_else(|_| -> Vec<Post> { vec![] });
-    if post_vec.len() == 0 {
-        None
-    } else {
-        Some(post_vec[0].clone())
-    }
+        .first::<Post>(conn)
+        .ok()
 }
 
 pub fn get_all(conn: &PgConnection) -> Vec<Post> {
@@ -40,22 +34,13 @@ pub fn get_by_user(user_id: Uuid, conn: &PgConnection) -> Vec<Post> {
         .unwrap_or_else(|_| -> Vec<Post> { vec![] })
 }
 
-pub fn add_new(user_id: Uuid, post: NewPost, conn: &PgConnection) -> Option<Post> {
-    let insert_post = create_post(user_id, post);
-
-    let query_res: Result<Vec<Uuid>, _> = diesel::insert_into(posts::table)
-        .values(&insert_post)
+pub fn add_new(user_id: Uuid, post: NewPost, conn: &PgConnection) -> Result<Post, &'static str> {
+    let new_post = create_post(user_id, post);
+    diesel::insert_into(posts::table)
+        .values(&new_post)
         .returning(post_id)
-        .get_results(conn);
-
-    match query_res {
-        Ok(v) => {
-            let new_post = get_by_id(v[0], conn).clone();
-            match new_post {
-                Some(s) => Some(s),
-                None => None,
-            }
-        }
-        Err(_) => None,
-    }
+        .get_results(conn)
+        .map_err(|_| ())
+        .and_then( |v| get_by_id(v[0], conn ).ok_or(()) )
+        .map_err(|_| "Insert failed")
 }
