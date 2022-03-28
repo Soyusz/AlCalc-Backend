@@ -7,27 +7,17 @@ use diesel::{self, PgConnection};
 use uuid::Uuid;
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<User> {
-    let user_vec = all_users
+    all_users
         .find(id)
-        .load::<User>(conn)
-        .unwrap_or_else(|_| -> Vec<User> { vec![] });
-    if user_vec.len() == 0 {
-        None
-    } else {
-        Some(user_vec[0].clone())
-    }
+        .first::<User>(conn)
+        .ok()
 }
 
 pub fn get_by_email(email: String, conn: &PgConnection) -> Option<User> {
-    let user_vec = all_users
+    all_users
         .filter(users::email.eq_all(email))
-        .load::<User>(conn)
-        .unwrap_or_else(|_| -> Vec<User> { vec![] });
-    if user_vec.len() == 0 {
-        None
-    } else {
-        Some(user_vec[0].clone())
-    }
+        .first::<User>(conn)
+        .ok()
 }
 
 pub fn get_all(conn: &PgConnection) -> Vec<User> {
@@ -36,24 +26,15 @@ pub fn get_all(conn: &PgConnection) -> Vec<User> {
         .unwrap_or_else(|_| -> Vec<User> { vec![] })
 }
 
-pub fn add_new(user: NewUser, conn: &PgConnection) -> Option<User> {
-    let insert_user = create_user(user);
-
-    let query_res: Result<Vec<Uuid>, _> = diesel::insert_into(users::table)
-        .values(&insert_user)
+pub fn add_new(user: NewUser, conn: &PgConnection) -> Result<User, &'static str> {
+ let new_user  = create_user(user);
+    diesel::insert_into(users::table)
+        .values(&new_user)
         .returning(user_id)
-        .get_results(conn);
-
-    match query_res {
-        Ok(v) => {
-            let new_user = get_by_id(v[0], conn).clone();
-            match new_user {
-                Some(s) => Some(s),
-                None => None,
-            }
-        }
-        Err(_) => None,
-    }
+        .get_results(conn)
+        .map_err(|_| () )
+        .and_then( |v| get_by_id(v[0], conn ).ok_or(()) )
+        .map_err(|_| "Insert failed")
 }
 
 pub fn update_photo(id: Uuid, new_photo: Option<String>, conn: &PgConnection) -> Result<User, &'static str> {

@@ -10,11 +10,11 @@ pub fn get_all_entries(conn: DBPool) -> Vec<Entry> {
 }
 
 pub fn insert_entry(entry: NewEntry, user_id: Uuid, conn: DBPool) -> Result<Entry, &'static str> {
-    add_new(entry, user_id, &conn).ok_or("cannot insert entry")
+    add_new(entry, user_id, &conn)
 }
 
 pub fn verify_entry(id: Uuid, state: bool, conn: DBPool) -> Result<Entry, &'static str> {
-    verify(id, Some(state), &conn).ok_or("cannot verify entry")
+    verify(id, Some(state), &conn)
 }
 
 pub fn get_verified_entries(conn: DBPool) -> Vec<Entry> {

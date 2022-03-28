@@ -6,9 +6,9 @@ use diesel::prelude::*;
 use diesel::{self, PgConnection};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use crate::schema::entries::verified;
 
-#[derive(Insertable, Clone, Deserialize, Serialize)]
-#[table_name = "entries"]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct NewEntry {
     pub name: String,
     pub price: f64,
@@ -18,15 +18,10 @@ pub struct NewEntry {
 }
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<Entry> {
-    let entry_vec = all_entries
-        .find(id)
-        .load::<Entry>(conn)
-        .unwrap_or_else(|_| -> Vec<Entry> { vec![] });
-    if entry_vec.len() == 0 {
-        None
-    } else {
-        Some(entry_vec[0].clone())
-    }
+    all_entries
+        .find::<Uuid>(id)
+        .first::<Entry>(conn)
+        .ok()
 }
 
 pub fn get_all(conn: &PgConnection) -> Vec<Entry> {
@@ -35,35 +30,22 @@ pub fn get_all(conn: &PgConnection) -> Vec<Entry> {
         .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
 }
 
-pub fn verify(id: Uuid, state: Option<bool>, conn: &PgConnection) -> Option<Entry> {
-    use crate::schema::entries::verified;
-    let mutation_res = diesel::update(all_entries.find(id))
+pub fn verify(id: Uuid, state: Option<bool>, conn: &PgConnection) -> Result<Entry, &'static str> {
+    diesel::update(all_entries.find(id))
         .set(verified.eq(state))
-        .get_result::<Entry>(conn);
-    match mutation_res {
-        Ok(s) => Some(s),
-        Err(_) => None,
-    }
+        .get_result::<Entry>(conn)
+        .map_err(|_| "Query failed")
 }
 
-pub fn add_new(entry: NewEntry, user_id: Uuid, conn: &PgConnection) -> Option<Entry> {
-    let insert_entry = create_entry(entry, user_id);
-
-    let query_res: Result<Vec<Uuid>, _> = diesel::insert_into(entries::table)
-        .values(&insert_entry)
+pub fn add_new(entry: NewEntry, user_id: Uuid, conn: &PgConnection) -> Result<Entry, &'static str> {
+    let new_entry  = create_entry(entry, user_id);
+    diesel::insert_into(entries::table)
+        .values(&new_entry)
         .returning(entry_id)
-        .get_results(conn);
-
-    match query_res {
-        Ok(v) => {
-            let new_entry = get_by_id(v[0], conn).clone();
-            match new_entry {
-                Some(s) => Some(s),
-                None => None,
-            }
-        }
-        Err(_) => None,
-    }
+        .get_results(conn)
+        .map_err(|_| () )
+        .and_then( |v| get_by_id(v[0], conn ).ok_or(()) )
+        .map_err(|_| "Insert failed")
 }
 
 pub fn get_verified(conn: &PgConnection) -> Vec<Entry> {
