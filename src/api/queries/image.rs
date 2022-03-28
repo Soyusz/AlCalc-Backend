@@ -1,9 +1,7 @@
 use crate::api::DBPool;
 use rocket::{get, routes, Route};
-use crate::model::image::Image;
 use crate::services::image as ImageService;
 use uuid::Uuid;
-use rocket_contrib::json::Json;
 use rocket::response::status;
 
 #[get("/<id_string>")]
@@ -20,7 +18,5 @@ fn get_by_id(
 }
 
 pub fn get_routes() -> std::vec::Vec<Route> {
-    routes![
-        get_by_id
-    ]
+    routes![ get_by_id ]
 }

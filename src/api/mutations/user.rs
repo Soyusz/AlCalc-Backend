@@ -26,7 +26,7 @@ fn login(conn: DBPool, login_cred: Json<LoginCred>) -> Response<AuthReturn> {
         .map(|_| login_cred.into_inner())
         .and_then(|login_cred| UserService::login(login_cred, conn))
         .map(|token| Json(AuthReturn { token: token }))
-        .map_err(|_| status::BadRequest(None))
+        .map_err(|e| status::BadRequest(Some(e)))
 }
 
 #[post("/login", rank = 2)]
