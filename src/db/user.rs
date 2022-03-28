@@ -8,9 +8,9 @@ use uuid::Uuid;
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<User> {
     all_users
-    .find(id)
-    .first::<User>(conn)
-    .ok()
+        .find(id)
+        .first::<User>(conn)
+        .ok()
 }
 
 pub fn get_by_email(email: String, conn: &PgConnection) -> Option<User> {
