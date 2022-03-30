@@ -1,5 +1,5 @@
 # AlCalc-Backend
-Backend of AlCalc - socialmedia aplication for sharing party memories
+Backend of AlCalc - social media aplication for sharing party memories
 
 frontend repo: https://github.com/Soyusz/AlCalc
 
