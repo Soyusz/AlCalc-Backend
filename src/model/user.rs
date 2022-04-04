@@ -1,5 +1,5 @@
-use crate::sql_types::UserRoles;
 use crate::schema::users;
+use crate::sql_types::UserRoles;
 use diesel::{self, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -12,7 +12,7 @@ pub struct User {
     pub email: String,
     pub email_verified: bool,
     pub role: UserRoles,
-    pub photo: Option<String>
+    pub photo: Option<String>,
 }
 
 #[derive(Deserialize, Serialize)]

@@ -1,5 +1,5 @@
 use crate::model::user::User;
-use crate::{db::entry::NewEntry, schema::entries};
+use crate::schema::entries;
 use diesel::{self, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -16,6 +16,15 @@ pub struct Entry {
     pub verified: Option<bool>,
     pub photo: String,
     pub user_id: Uuid,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct NewEntry {
+    pub name: String,
+    pub price: f64,
+    pub voltage: f64,
+    pub volume: f64,
+    pub photo: String,
 }
 
 pub fn create_entry(entry: NewEntry, user_id: Uuid) -> Entry {

@@ -1,4 +1,4 @@
-use crate::{db::post::NewPost, schema::posts};
+use crate::schema::posts;
 use diesel::{self, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -8,6 +8,13 @@ use uuid::Uuid;
 pub struct Post {
     pub id: Uuid,
     pub user_id: Uuid,
+    pub location: Option<String>,
+    pub title: String,
+    pub photos: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct NewPost {
     pub location: Option<String>,
     pub title: String,
     pub photos: Vec<String>,

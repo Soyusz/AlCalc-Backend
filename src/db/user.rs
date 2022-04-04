@@ -36,9 +36,9 @@ pub fn update_photo(
     id: Uuid,
     image_link: String,
     conn: &PgConnection,
-) -> Result<Vec<User>, &'static str> {
+) -> Result<User, &'static str> {
     diesel::update(users::table.find(id))
         .set(users::photo.eq(image_link))
-        .get_results::<User>(conn)
+        .get_result::<User>(conn)
         .map_err(|_| "Cannot update user")
 }
