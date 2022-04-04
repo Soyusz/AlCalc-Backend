@@ -2,7 +2,7 @@ use crate::api::utils::structs::LoginCred;
 use crate::api::DBPool;
 use crate::db::user as UserRepo;
 use crate::model::token as TokenModel;
-use crate::model::user::{create_user, NewUser, User};
+use crate::model::user::{NewUser, User};
 use crate::services::email as EmailService;
 use crate::services::image as ImageService;
 use crate::sql_types::UserRoles;
@@ -17,7 +17,7 @@ pub fn prepare_new_user(user: NewUser) -> Result<NewUser, &'static str> {
 
 pub fn insert_user(raw_user: NewUser, conn: DBPool) -> Result<User, &'static str> {
     prepare_new_user(raw_user)
-        .map(|new_user| create_user(new_user))
+        .map(|new_user| User::create_user(new_user))
         .and_then(|user| UserRepo::add_new(user, &conn))
         .map(|user| {
             EmailService::email_verification(&user.email);

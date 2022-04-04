@@ -1,6 +1,6 @@
 use crate::api::DBPool;
 use crate::db::post as PostRepo;
-use crate::model::post::{create_post, NewPost, Post};
+use crate::model::post::{NewPost, Post};
 use crate::services::image as ImageService;
 use uuid::Uuid;
 
@@ -32,6 +32,6 @@ pub fn insert(post: NewPost, user_id: Uuid, conn: DBPool) -> Result<Post, &'stat
             title: post.title,
             photos: photos,
         })
-        .map(|new_post| create_post(user_id, new_post))
+        .map(|new_post| Post::create_post(user_id, new_post))
         .and_then(|post| PostRepo::add_new(post, &conn))
 }

@@ -21,13 +21,15 @@ pub struct NewUser {
     pub email: String,
 }
 
-pub fn create_user(user: NewUser) -> User {
-    User {
-        id: Uuid::new_v4(),
-        name: user.name,
-        email: user.email,
-        email_verified: false,
-        role: UserRoles::User,
-        photo: None
+impl User {
+    pub fn create_user(user: NewUser) -> User {
+        User {
+            id: Uuid::new_v4(),
+            name: user.name,
+            email: user.email,
+            email_verified: false,
+            role: UserRoles::User,
+            photo: None,
+        }
     }
 }

@@ -20,12 +20,14 @@ pub struct NewPost {
     pub photos: Vec<String>,
 }
 
-pub fn create_post(user_id: Uuid, post: NewPost) -> Post {
-    Post {
-        id: Uuid::new_v4(),
-        user_id: user_id,
-        location: post.location,
-        title: post.title,
-        photos: post.photos,
+impl Post {
+    pub fn create_post(user_id: Uuid, post: NewPost) -> Post {
+        Post {
+            id: Uuid::new_v4(),
+            user_id: user_id,
+            location: post.location,
+            title: post.title,
+            photos: post.photos,
+        }
     }
 }
