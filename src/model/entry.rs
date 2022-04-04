@@ -26,16 +26,17 @@ pub struct NewEntry {
     pub volume: f64,
     pub photo: String,
 }
-
-pub fn create_entry(entry: NewEntry, user_id: Uuid) -> Entry {
-    Entry {
-        id: Uuid::new_v4(),
-        name: entry.name,
-        price: entry.price,
-        voltage: entry.voltage,
-        volume: entry.volume,
-        verified: None,
-        photo: entry.photo,
-        user_id: user_id,
+impl Entry {
+    pub fn create_entry(entry: NewEntry, user_id: Uuid) -> Entry {
+        Entry {
+            id: Uuid::new_v4(),
+            name: entry.name,
+            price: entry.price,
+            voltage: entry.voltage,
+            volume: entry.volume,
+            verified: None,
+            photo: entry.photo,
+            user_id: user_id,
+        }
     }
 }
