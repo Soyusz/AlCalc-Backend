@@ -23,7 +23,7 @@ pub fn insert_entry(
             photo: link,
         })
         .map(|new_entry| Entry::create_entry(new_entry, user_id))
-        .and_then(|entry| EntryRepo::add_new(entry, user_id, &conn))
+        .and_then(|entry| EntryRepo::add_new(entry, &conn))
 }
 
 pub fn verify_entry(id: Uuid, state: bool, conn: DBPool) -> Result<Entry, &'static str> {

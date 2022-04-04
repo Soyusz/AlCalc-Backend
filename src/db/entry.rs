@@ -19,7 +19,7 @@ pub fn verify(id: Uuid, state: Option<bool>, conn: &PgConnection) -> Result<Entr
         .map_err(|_| "Update failed")
 }
 
-pub fn add_new(entry: Entry, user_id: Uuid, conn: &PgConnection) -> Result<Entry, &'static str> {
+pub fn add_new(entry: Entry, conn: &PgConnection) -> Result<Entry, &'static str> {
     diesel::insert_into(all_entries)
         .values(&entry)
         .get_result::<Entry>(conn)
