@@ -1,3 +1,4 @@
+use crate::sql_types::EntryLabel;
 use crate::model::entry::Entry;
 use crate::schema::entries::{self, table as all_entries};
 use diesel::prelude::*;
@@ -29,6 +30,14 @@ pub fn add_new(entry: Entry, conn: &PgConnection) -> Result<Entry, &'static str>
 pub fn get_verified(conn: &PgConnection) -> Vec<Entry> {
     all_entries
         .filter(entries::verified.eq_all(true))
+        .load::<Entry>(conn)
+        .unwrap_or(vec![])
+}
+
+pub fn get_verified_tags(conn: &PgConnection, tags: Vec<EntryLabel>) -> Vec<Entry> {
+    all_entries
+        .filter(entries::verified.eq_all(true))
+        .filter(entries::label.overlaps_with(tags))
         .load::<Entry>(conn)
         .unwrap_or(vec![])
 }

@@ -3,6 +3,7 @@ use crate::db::entry as EntryRepo;
 use crate::model::entry::{Entry, NewEntry};
 use crate::services::image as ImageService;
 use uuid::Uuid;
+use crate::sql_types::EntryLabel;
 
 pub fn get_all_entries(conn: DBPool) -> Vec<Entry> {
     EntryRepo::get_all(&conn)
@@ -21,6 +22,7 @@ pub fn insert_entry(
             price: raw_entry.price,
             volume: raw_entry.volume,
             photo: link,
+            label: raw_entry.label
         })
         .map(|new_entry| Entry::create_entry(new_entry, user_id))
         .and_then(|entry| EntryRepo::add_new(entry, &conn))
@@ -32,6 +34,10 @@ pub fn verify_entry(id: Uuid, state: bool, conn: DBPool) -> Result<Entry, &'stat
 
 pub fn get_verified_entries(conn: DBPool) -> Vec<Entry> {
     EntryRepo::get_verified(&conn)
+}
+
+pub fn get_verified_entries_tags(conn: DBPool, tags: Vec<EntryLabel>) -> Vec<Entry> {
+    EntryRepo::get_verified_tags(&conn, tags) 
 }
 
 pub fn get_unverified_entries(conn: DBPool) -> Vec<Entry> {
