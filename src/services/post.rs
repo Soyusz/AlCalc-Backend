@@ -1,6 +1,6 @@
 use crate::api::DBPool;
-use crate::db::post::{self as PostRepo, NewPost};
-use crate::model::post::Post;
+use crate::db::post as PostRepo;
+use crate::model::post::{NewPost, Post};
 use crate::services::image as ImageService;
 use uuid::Uuid;
 
@@ -16,7 +16,7 @@ pub fn get_by_id(post_id: Uuid, conn: &DBPool) -> Option<Post> {
     PostRepo::get_by_id(post_id, &conn)
 }
 
-pub fn get_feed(_: Uuid, conn: &DBPool) -> Vec<Post> {
+pub fn get_feed(_user_id: Uuid, conn: &DBPool) -> Vec<Post> {
     PostRepo::get_all(&conn)
 }
 
@@ -32,5 +32,6 @@ pub fn insert(post: NewPost, user_id: Uuid, conn: DBPool) -> Result<Post, &'stat
             title: post.title,
             photos: photos,
         })
-        .and_then(|new_post| PostRepo::add_new(user_id, new_post, &conn))
+        .map(|new_post| Post::create_post(user_id, new_post))
+        .and_then(|post| PostRepo::add_new(post, &conn))
 }

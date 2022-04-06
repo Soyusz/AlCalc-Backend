@@ -1,9 +1,7 @@
 use crate::api::utils::{auth_user::Auth, Response};
 use crate::api::DBPool;
-use crate::db::entry::NewEntry;
-use crate::model::entry::Entry;
-use crate::services::entry::insert_entry;
-use crate::services::entry::verify_entry;
+use crate::model::entry::{Entry, NewEntry};
+use crate::services::entry as EntryService;
 use rocket::response::status;
 use rocket::{post, put, routes, Route};
 use rocket_contrib::json::Json;
@@ -12,7 +10,7 @@ use uuid::Uuid;
 #[post("/", format = "application/json", data = "<new_entry>", rank = 1)]
 fn post_new(auth: Auth, conn: DBPool, new_entry: Json<NewEntry>) -> Response<Entry> {
     Ok(new_entry.into_inner())
-        .and_then(|entry| insert_entry(entry, auth.user_id, conn))
+        .and_then(|entry| EntryService::insert_entry(entry, auth.user_id, conn))
         .map_err(|e| status::BadRequest(Some(e)))
         .map(|r| Json(r))
 }
@@ -25,7 +23,7 @@ fn post_new_invalid() -> status::BadRequest<&'static str> {
 fn verify_accept(id_string: String, conn: DBPool) -> Response<Entry> {
     Uuid::parse_str(id_string.as_str())
         .map_err(|_| "cannot parse id")
-        .and_then(|id| verify_entry(id, true, conn))
+        .and_then(|id| EntryService::verify_entry(id, true, conn))
         .map_err(|e| status::BadRequest(Some(e)))
         .map(|r| Json(r))
 }
@@ -34,7 +32,7 @@ fn verify_accept(id_string: String, conn: DBPool) -> Response<Entry> {
 fn verify_reject(id_string: String, conn: DBPool) -> Response<Entry> {
     Uuid::parse_str(id_string.as_str())
         .map_err(|_| "cannot parse id")
-        .and_then(|id| verify_entry(id, false, conn))
+        .and_then(|id| EntryService::verify_entry(id, false, conn))
         .map_err(|e| status::BadRequest(Some(e)))
         .map(|r| Json(r))
 }

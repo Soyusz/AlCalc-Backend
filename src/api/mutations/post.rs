@@ -1,7 +1,6 @@
 use crate::api::utils::{auth_user::Auth, Response};
 use crate::api::DBPool;
-use crate::db::post::NewPost;
-use crate::model::post::Post;
+use crate::model::post::{NewPost, Post};
 use crate::services::post as PostService;
 use rocket::response::status;
 use rocket::{post, routes, Route};
