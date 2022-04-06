@@ -80,7 +80,7 @@ pub fn get_verified_tags(conn: &PgConnection, tags: Vec<EntryLabel>) -> Vec<Entr
         .filter(entries::verified.eq_all(true))
         .filter(entries::label.overlaps_with(tags))
         .load::<Entry>(conn)
-        .unwrap_or_else(|_| -> Vec<Entry> { vec![] })
+        .unwrap_or(vec![])
 }
 
 pub fn get_unverified(conn: &PgConnection) -> Vec<Entry> {
