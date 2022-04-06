@@ -17,7 +17,15 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::sql_types::*;
+
+    images (id) {
+        id -> Uuid,
+        value -> Bytea,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
 
     likes (id) {
         id -> Uuid,
@@ -28,7 +36,6 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::sql_types::*;
 
     posts (id) {
         id -> Uuid,
@@ -49,6 +56,7 @@ table! {
         email -> Varchar,
         email_verified -> Bool,
         role -> User_role,
+        photo -> Nullable<Varchar>,
     }
 }
 
@@ -59,6 +67,7 @@ joinable!(posts -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     entries,
+    images,
     likes,
     posts,
     users,

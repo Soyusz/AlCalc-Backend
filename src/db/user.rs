@@ -1,65 +1,44 @@
-use crate::model::user::{create_user, User};
-use crate::schema::users;
-use crate::schema::users::dsl::users as all_users;
-use crate::schema::users::id as user_id;
+use crate::model::user::User;
+use crate::schema::users::{self, table as all_users};
 use diesel::prelude::*;
 use diesel::{self, PgConnection};
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Insertable, Clone, Deserialize, Serialize)]
-#[table_name = "users"]
-pub struct NewUser {
-    pub name: String,
-    pub email: String,
-}
-
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<User> {
-    let user_vec = all_users
-        .find(id)
-        .load::<User>(conn)
-        .unwrap_or_else(|_| -> Vec<User> { vec![] });
-    if user_vec.len() == 0 {
-        None
-    } else {
-        Some(user_vec[0].clone())
-    }
+    all_users.find(id).first::<User>(conn).ok()
 }
 
 pub fn get_by_email(email: String, conn: &PgConnection) -> Option<User> {
-    let user_vec = all_users
-        .filter(users::email.eq_all(email))
-        .load::<User>(conn)
-        .unwrap_or_else(|_| -> Vec<User> { vec![] });
-    if user_vec.len() == 0 {
-        None
-    } else {
-        Some(user_vec[0].clone())
-    }
+    all_users
+        .filter(users::email.eq(email))
+        .first::<User>(conn)
+        .ok()
 }
 
 pub fn get_all(conn: &PgConnection) -> Vec<User> {
-    all_users
-        .load::<User>(conn)
-        .unwrap_or_else(|_| -> Vec<User> { vec![] })
+    users::table.load::<User>(conn).unwrap_or(vec![])
 }
 
-pub fn add_new(user: NewUser, conn: &PgConnection) -> Option<User> {
-    let insert_user = create_user(user);
+pub fn add_new(user: User, conn: &PgConnection) -> Result<User, &'static str> {
+    diesel::insert_into(all_users)
+        .values(user)
+        .get_result::<User>(conn)
+        .map_err(|_| "Insert failed")
+}
 
-    let query_res: Result<Vec<Uuid>, _> = diesel::insert_into(users::table)
-        .values(&insert_user)
-        .returning(user_id)
-        .get_results(conn);
+pub fn delete_user(user_id: Uuid, conn: &PgConnection) -> Result<User, &'static str> {
+    diesel::delete(all_users.find(user_id))
+        .get_result::<User>(conn)
+        .map_err(|_| "Delete failed")
+}
 
-    match query_res {
-        Ok(v) => {
-            let new_user = get_by_id(v[0], conn).clone();
-            match new_user {
-                Some(s) => Some(s),
-                None => None,
-            }
-        }
-        Err(_) => None,
-    }
+pub fn update_photo(
+    id: Uuid,
+    image_link: String,
+    conn: &PgConnection,
+) -> Result<User, &'static str> {
+    diesel::update(users::table.find(id))
+        .set(users::photo.eq(image_link))
+        .get_result::<User>(conn)
+        .map_err(|_| "Cannot update user")
 }
