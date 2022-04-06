@@ -5,7 +5,7 @@ use diesel::{self, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Clone, Deserialize, Serialize, Queryable, Insertable, Associations)]
+#[derive(Clone,Debug, Deserialize, Serialize, Queryable, Insertable, Associations)]
 #[belongs_to(User)]
 #[table_name = "entries"]
 pub struct Entry {

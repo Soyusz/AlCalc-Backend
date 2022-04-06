@@ -21,10 +21,11 @@ pub fn verify(id: Uuid, state: Option<bool>, conn: &PgConnection) -> Result<Entr
 }
 
 pub fn add_new(entry: Entry, conn: &PgConnection) -> Result<Entry, &'static str> {
+    println!("{:?}",entry);
     diesel::insert_into(all_entries)
         .values(&entry)
         .get_result::<Entry>(conn)
-        .map_err(|_| "Insert failed")
+        .map_err(|e| {println!("{e}"); "twoja mama"})
 }
 
 pub fn get_verified(conn: &PgConnection) -> Vec<Entry> {
