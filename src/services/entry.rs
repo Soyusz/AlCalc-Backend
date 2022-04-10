@@ -1,6 +1,6 @@
 use crate::api::DBPool;
 use crate::db::entry as EntryRepo;
-use crate::model::entry::{Entry, NewEntry};
+use crate::model::entry::{Entry, NewEntry, NewEntryNoLabel};
 use crate::services::image as ImageService;
 use uuid::Uuid;
 use crate::sql_types::EntryLabel;
@@ -25,6 +25,24 @@ pub fn insert_entry(
             label: raw_entry.label
         })
         .map(|new_entry| Entry::create_entry(new_entry, user_id))
+        .and_then(|entry| EntryRepo::add_new(entry, &conn))
+}
+
+pub fn insert_entry_no_label(
+    raw_entry: NewEntryNoLabel,
+    user_id: Uuid,
+    conn: DBPool,
+) -> Result<Entry, &'static str> {
+    ImageService::create_from_base(raw_entry.photo, &conn)
+        .map(|file| ImageService::gen_link(file))
+        .map(|link| NewEntryNoLabel {
+            name: raw_entry.name,
+            voltage: raw_entry.voltage,
+            price: raw_entry.price,
+            volume: raw_entry.volume,
+            photo: link,
+        })
+        .map(|new_entry| Entry::create_entry_no_label(new_entry, user_id))
         .and_then(|entry| EntryRepo::add_new(entry, &conn))
 }
 
