@@ -43,7 +43,7 @@ pub fn check_admin(user_id: Uuid, conn: &DBPool) -> Result<User, &'static str> {
 }
 
 pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, &'static str> {
-    check_admin(user_id, &conn).map(|_| UserRepo::get_all(&conn))
+    Ok(UserRepo::get_all(&conn))
 }
 
 pub fn login(cred: LoginCred, conn: DBPool) -> Result<String, &'static str> {
