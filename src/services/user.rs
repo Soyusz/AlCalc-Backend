@@ -19,9 +19,9 @@ pub fn insert_user(raw_user: NewUser, conn: DBPool) -> Result<User, &'static str
     prepare_new_user(raw_user)
         .map(|new_user| User::create_user(new_user))
         .and_then(|user| UserRepo::add_new(user, &conn))
-        .map(|user| {
-            EmailService::email_verification(&user.email);
-            user
+        .and_then(|user| {
+            EmailService::email_verification(&user.email)?;
+            Ok(user)
         })
 }
 
