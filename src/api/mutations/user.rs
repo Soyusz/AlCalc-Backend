@@ -4,7 +4,7 @@ use crate::api::DBPool;
 use crate::model::user::{NewUser, User as UserModel};
 use crate::services::user as UserService;
 use rocket::response::status;
-use rocket::{post, put, routes, Route};
+use rocket::{get, post, put, routes, Route};
 use rocket_contrib::json::Json;
 
 #[post("/", format = "application/json", data = "<new_user>", rank = 1)]
@@ -46,6 +46,21 @@ fn put_photo(
         .map_err(|e| status::BadRequest(Some(e)))
 }
 
+#[get("/verify_email/<token_arg>")]
+fn verify_account(token_arg: String, conn: DBPool) -> Response<UserModel> {
+    Ok(token_arg.as_str())
+        .and_then(|token| UserService::verify_account(token.to_string(), &conn))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
+}
+
 pub fn get_routes() -> std::vec::Vec<Route> {
-    routes![post_new, post_new_invalid, login, login_invalid, put_photo]
+    routes![
+        post_new,
+        post_new_invalid,
+        login,
+        login_invalid,
+        put_photo,
+        verify_account
+    ]
 }

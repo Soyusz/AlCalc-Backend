@@ -64,4 +64,5 @@ pub fn update_photo(photo: String, user_id: Uuid, conn: &DBPool) -> Result<User,
 pub fn verify_account(token: String, conn: &DBPool) -> Result<User, &'static str> {
     JwtTokenService::validate::<VerifyAccountPayload>(token)
         .and_then(|payload| UserRepo::get_by_id(payload.user_id, &conn).ok_or("Cannot fetch user"))
+        .and_then(|user| UserRepo::verify_email(user.id, &conn))
 }
