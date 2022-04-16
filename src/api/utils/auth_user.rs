@@ -23,10 +23,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
         }
         let token = keys[0].to_string();
 
-        let res = JwtTokenService::validate::<AuthTokenPayload>(token);
-        println!("${:?}", res);
-
-        match res {
+        match JwtTokenService::validate::<AuthTokenPayload>(token) {
             Ok(payload) => Outcome::Success(Auth {
                 user_id: payload.user_id,
             }),
