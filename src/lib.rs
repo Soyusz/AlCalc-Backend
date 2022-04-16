@@ -9,3 +9,4 @@ pub mod model;
 pub mod schema;
 pub mod services;
 pub mod sql_types;
+pub mod types;

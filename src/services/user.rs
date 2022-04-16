@@ -1,11 +1,13 @@
 use crate::api::utils::structs::LoginCred;
 use crate::api::DBPool;
 use crate::db::user as UserRepo;
-use crate::model::token as TokenModel;
 use crate::model::user::{NewUser, User};
 use crate::services::email as EmailService;
 use crate::services::image as ImageService;
+use crate::services::jwt_token as JwtTokenService;
+use crate::services::token as TokenService;
 use crate::sql_types::UserRoles;
+use crate::types::token::VerifyAccountPayload;
 use uuid::Uuid;
 
 pub fn prepare_new_user(user: NewUser) -> Result<NewUser, &'static str> {
@@ -20,7 +22,7 @@ pub fn insert_user(raw_user: NewUser, conn: DBPool) -> Result<User, &'static str
         .map(|new_user| User::create_user(new_user))
         .and_then(|user| UserRepo::add_new(user, &conn))
         .and_then(|user| {
-            EmailService::email_verification(&user.email)?;
+            EmailService::email_verification(&user)?;
             Ok(user)
         })
 }
@@ -50,11 +52,16 @@ pub fn login(cred: LoginCred, conn: DBPool) -> Result<String, &'static str> {
     let email = cred.email.to_lowercase();
     get_by_email(email, conn)
         .ok_or("User not found")
-        .and_then(|user| TokenModel::create(&user.id))
+        .and_then(|user| TokenService::create_auth_token(&user.id))
 }
 
 pub fn update_photo(photo: String, user_id: Uuid, conn: &DBPool) -> Result<User, &'static str> {
     ImageService::create_from_base(photo, conn)
         .map(|i| ImageService::gen_link(i))
         .and_then(|link| UserRepo::update_photo(user_id, link, conn))
+}
+
+pub fn verify_account(token: String, conn: &DBPool) -> Result<User, &'static str> {
+    JwtTokenService::validate::<VerifyAccountPayload>(token)
+        .and_then(|payload| UserRepo::get_by_id(payload.user_id, &conn).ok_or("Cannot fetch user"))
 }
