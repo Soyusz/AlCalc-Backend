@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use rocket::config::{Config, Environment, Value};
+use rocket::config::{Config, Environment, Value,Limits};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method};
 use rocket::{Request, Response, Rocket};
@@ -46,11 +46,13 @@ pub fn init_routes() -> Rocket {
         .unwrap()
         .parse::<u16>()
         .unwrap();
-    let config = Config::build(Environment::Staging)
+    let mut config = Config::build(Environment::Staging)
         .port(port_number)
         .extra("databases", databases)
         .finalize()
         .unwrap();
+
+    config.set_limits(Limits::default().limit("json", 300 * 1024 * 1024));
 
     let cors = CorsOptions::default()
         .allowed_origins(AllowedOrigins::all())

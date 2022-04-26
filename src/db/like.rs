@@ -1,88 +1,56 @@
-use uuid::Uuid;
-use diesel::{self, PgConnection};
-use crate::model::post::Post;
 use crate::model::like::Like;
+use crate::model::post::Post;
 use crate::model::user::User;
-use crate::schema::likes::{
-    self,
-    id as like_id,
-    dsl::likes as all_likes
-};
-use crate::schema::users;
-use crate::schema::posts;
+use crate::schema::likes::{self, table as all_likes};
+use crate::schema::posts::{self, table as all_posts};
+use crate::schema::users::{self, table as all_users};
 use diesel::prelude::*;
+use diesel::{self, PgConnection};
+use uuid::Uuid;
 
 pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<Like> {
-    let vec = all_likes
-        .find(id)
-        .load::<Like>(conn)
-        .unwrap_or_else(|_| -> Vec<Like> { vec![] });
-    if vec.len() == 0 {
-        None
-    } else {
-        Some(vec[0].clone())
-    }
+    all_likes.find(id).first::<Like>(conn).ok()
 }
 
-pub fn unlike_post(
-    user_id: Uuid,
-    post_id: Uuid,
-    conn: &PgConnection
-) -> Result<(), &'static str> {
-    diesel::delete(all_likes
-        .filter(likes::post_id.eq_all(post_id))
-        .filter(likes::user_id.eq_all(user_id)))
-        .execute(conn)
-        .map(|_| ())
-        .map_err(|_| "Query failed")
+pub fn unlike_post(like: Like, conn: &PgConnection) -> Result<Like, &'static str> {
+    diesel::delete(
+        all_likes
+            .filter(likes::post_id.eq_all(like.post_id))
+            .filter(likes::user_id.eq_all(like.user_id)),
+    )
+    .get_result::<Like>(conn)
+    .map_err(|_| "Delete failed")
 }
 
-pub fn like_post(
-    user_id: Uuid,
-    post_id: Uuid,
-    conn: &PgConnection
-) -> Result<Like, &'static str> {
-    let insert_like = Like::create_like(post_id,user_id);
+pub fn like_post(like: Like, conn: &PgConnection) -> Result<Like, &'static str> {
     diesel::insert_into(likes::table)
-        .values(&insert_like)
-        .returning(like_id)
-        .get_results(conn)
-        .map_err(|_| ())
-        .and_then(|v|  get_by_id(v[0],conn).ok_or(()) )
+        .values(&like)
+        .get_result::<Like>(conn)
         .map_err(|_| "Query failed")
 }
 
-pub fn check_like(
-    post_id: Uuid,
-    user_id: Uuid,
-    conn: &PgConnection
-) -> Result<Like,()> {
+pub fn get_like(post_id: Uuid, user_id: Uuid, conn: &PgConnection) -> Option<Like> {
     all_likes
         .filter(likes::post_id.eq_all(post_id))
         .filter(likes::user_id.eq_all(user_id))
         .first::<Like>(conn)
-        .map_err(|_| ())
+        .ok()
 }
 
-
-pub fn get_by_post(
-    post_id: Uuid,
-    conn: &PgConnection
-) -> Result<Vec<User>,&'static str> {
-    likes::table.inner_join(users::table)
+pub fn get_users_by_post(post_id: Uuid, conn: &PgConnection) -> Vec<User> {
+    all_likes
+        .inner_join(all_users)
         .filter(likes::post_id.eq_all(post_id))
-        .select((users::id, users::name, users::email, users::email_verified, users::role, users::photo))
+        .select(users::all_columns)
         .load::<User>(conn)
-        .map_err(|_| "Query failed")
+        .unwrap_or(vec![])
 }
 
-pub fn get_by_user(
-    user_id: Uuid,
-    conn: &PgConnection
-) -> Result<Vec<Post>, &'static str> {
-    likes::table.inner_join(posts::table)
+pub fn get_posts_by_user(user_id: Uuid, conn: &PgConnection) -> Vec<Post> {
+    all_likes
+        .inner_join(all_posts)
         .filter(likes::user_id.eq_all(user_id))
-        .select((posts::id,posts::user_id,posts::location,posts::title,posts::photos))
+        .select(posts::all_columns)
         .load::<Post>(conn)
-        .map_err(|_| "Query failed") 
+        .unwrap_or(vec![])
 }

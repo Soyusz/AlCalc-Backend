@@ -1,5 +1,6 @@
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     entries (id) {
         id -> Uuid,
@@ -10,6 +11,7 @@ table! {
         verified -> Nullable<Bool>,
         photo -> Varchar,
         user_id -> Uuid,
+        label -> Array<Entry_label>,
     }
 }
 
@@ -63,4 +65,10 @@ joinable!(likes -> posts (post_id));
 joinable!(likes -> users (user_id));
 joinable!(posts -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(entries, images, likes, posts, users,);
+allow_tables_to_appear_in_same_query!(
+    entries,
+    images,
+    likes,
+    posts,
+    users,
+);
