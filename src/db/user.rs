@@ -42,3 +42,10 @@ pub fn update_photo(
         .get_result::<User>(conn)
         .map_err(|_| "Cannot update user")
 }
+
+pub fn verify_email(id: Uuid, conn: &PgConnection) -> Result<User, &'static str> {
+    diesel::update(users::table.find(id))
+        .set(users::email_verified.eq(true))
+        .get_result::<User>(conn)
+        .map_err(|_| "Cannot update user")
+}

@@ -1,4 +1,5 @@
-use crate::model::token as TokenModel;
+use crate::services::jwt_token as JwtTokenService;
+use crate::types::token::AuthTokenPayload;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -22,7 +23,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
         }
         let token = keys[0].to_string();
 
-        match TokenModel::validate(token) {
+        match JwtTokenService::validate::<AuthTokenPayload>(token) {
             Ok(payload) => Outcome::Success(Auth {
                 user_id: payload.user_id,
             }),
