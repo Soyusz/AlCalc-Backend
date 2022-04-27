@@ -17,4 +17,4 @@ backend url: https://alcalc.herokuapp.com
 5. Heroku
 6. CircleCI
 
-ta linijka jest po to żeby była zmiana bo prod failuje
+ta linijka jest po to żeby była zmiana bo prod failuje!
