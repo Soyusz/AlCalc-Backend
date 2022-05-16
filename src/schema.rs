@@ -17,6 +17,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     images (id) {
         id -> Uuid,
@@ -26,6 +27,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     likes (id) {
         id -> Uuid,
@@ -36,6 +38,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     posts (id) {
         id -> Uuid,
@@ -43,6 +46,18 @@ table! {
         location -> Nullable<Varchar>,
         title -> Varchar,
         photos -> Array<Text>,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use crate::sql_types::*;
+
+    sessions (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        authorized -> Bool,
+        expiration -> Timestamp,
     }
 }
 
@@ -63,12 +78,12 @@ table! {
 joinable!(entries -> users (user_id));
 joinable!(likes -> posts (post_id));
 joinable!(likes -> users (user_id));
-joinable!(posts -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     entries,
     images,
     likes,
     posts,
+    sessions,
     users,
 );

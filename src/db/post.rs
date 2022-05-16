@@ -9,7 +9,9 @@ pub fn get_by_id(id: Uuid, conn: &PgConnection) -> Option<Post> {
 }
 
 pub fn get_all(conn: &PgConnection) -> Vec<Post> {
-    all_posts.load::<Post>(conn).unwrap_or(vec![])
+    all_posts
+        .load::<Post>(conn)
+        .unwrap_or(vec![])
 }
 
 pub fn get_by_user(user_id: Uuid, conn: &PgConnection) -> Vec<Post> {
