@@ -10,3 +10,8 @@ pub struct AuthTokenPayload {
 pub struct VerifyAccountPayload {
     pub user_id: Uuid,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct AuthorizeSessionPayload {
+    pub session_id: Uuid,
+}

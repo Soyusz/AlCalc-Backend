@@ -1,5 +1,7 @@
 use crate::api::utils::structs::{AuthReturn, LoginCred, PhotoArg};
 use crate::api::utils::{auth_user::Auth, Response};
+use crate::model::session::Session;
+use crate::services::session as SessionService;
 use crate::api::DBPool;
 use crate::model::user::{NewUser, User as UserModel};
 use crate::services::user as UserService;
@@ -21,11 +23,11 @@ fn post_new_invalid() -> status::BadRequest<()> {
 }
 
 #[post("/login", format = "application/json", data = "<login_cred>", rank = 1)]
-fn login(conn: DBPool, login_cred: Json<LoginCred>) -> Response<AuthReturn> {
+fn login(conn: DBPool, login_cred: Json<LoginCred>) -> Response<Session> {
     Ok(())
         .map(|_| login_cred.into_inner())
-        .and_then(|login_cred| UserService::login(login_cred, conn))
-        .map(|token| Json(AuthReturn { token: token }))
+        .and_then(|login_cred| SessionService::login(login_cred, &conn))
+        .map(|token| Json(token))
         .map_err(|e| status::BadRequest(Some(e)))
 }
 
@@ -54,8 +56,17 @@ fn verify_account(token_arg: String, conn: DBPool) -> Response<UserModel> {
         .map_err(|e| status::BadRequest(Some(e)))
 }
 
+#[get("/confirm_session/<token_arg>")]
+fn confirm_session(token_arg: String, conn: DBPool) -> Response<Session> {
+    Ok(token_arg.as_str())
+        .and_then(|token| SessionService::authorize(token.to_string(), &conn))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
+}
+
 pub fn get_routes() -> std::vec::Vec<Route> {
     routes![
+        confirm_session,
         post_new,
         post_new_invalid,
         login,
