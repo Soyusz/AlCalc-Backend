@@ -1,4 +1,4 @@
-use crate::api::utils::{auth_user::Auth, Response};
+use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::entry::{Entry, NewEntry};
 use crate::services::entry as EntryService;

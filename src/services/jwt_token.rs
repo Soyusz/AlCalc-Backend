@@ -30,5 +30,5 @@ pub fn validate<T: DeserializeOwned>(token: String) -> Result<T, &'static str> {
     let key = DecodingKey::from_secret(jwt_secret.as_bytes());
     decode::<JwtToken<T>>(&token, &key, &Validation::new(Algorithm::HS512))
         .map(|decoded| decoded.claims.payload)
-        .map_err(|e| "Invalid token")
+        .map_err(|_| "Invalid token")
 }

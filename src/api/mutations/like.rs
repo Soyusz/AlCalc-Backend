@@ -1,4 +1,4 @@
-use crate::api::utils::{auth_user::Auth, Response};
+use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::like::Like;
 use crate::services::like as LikeService;
@@ -13,7 +13,6 @@ use uuid::Uuid;
 pub fn like(session_token: SessionToken, conn: DBPool, id_string: String) -> Response<Like> {
     let post_id =
         Uuid::parse_str(id_string.as_str()).map_err(|_| status::BadRequest(Some("Invalid id")))?;
-
     SessionService::is_authorized(session_token.session_id, &conn)
         .and_then(|session| LikeService::like(session.user_id, post_id, conn))
         .map_err(|e| status::BadRequest(Some(e)))
@@ -24,7 +23,6 @@ pub fn like(session_token: SessionToken, conn: DBPool, id_string: String) -> Res
 pub fn unlike(session_token: SessionToken, conn: DBPool, id_string: String) -> Response<Like> {
     let post_id =
         Uuid::parse_str(id_string.as_str()).map_err(|_| status::BadRequest(Some("Invalid id")))?;
-
     SessionService::is_authorized(session_token.session_id, &conn)
         .and_then(|session| LikeService::unlike(session.user_id, post_id, conn))
         .map_err(|e| status::BadRequest(Some(e)))

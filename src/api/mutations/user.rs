@@ -1,5 +1,5 @@
 use crate::api::utils::session::SessionTokenReturnType;
-use crate::api::utils::structs::{AuthReturn, LoginCred, PhotoArg};
+use crate::api::utils::structs::{LoginCred, PhotoArg};
 use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::session::Session;

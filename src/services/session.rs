@@ -1,15 +1,11 @@
 use crate::api::utils::structs::LoginCred;
 use crate::api::DBPool;
 use crate::db::session as SessionRepo;
-use crate::db::user as UserRepo;
 use crate::model::session::Session;
-use crate::model::user::{NewUser, User};
 use crate::services::email as EmailService;
-use crate::services::image as ImageService;
 use crate::services::jwt_token as JwtTokenService;
 use crate::services::token as TokenService;
 use crate::services::user as UserService;
-use crate::sql_types::UserRoles;
 use crate::types::token::SessionToken;
 use uuid::Uuid;
 

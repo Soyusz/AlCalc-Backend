@@ -2,7 +2,6 @@ use crate::services::jwt_token as JwtTokenService;
 use crate::types::token::SessionToken;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct SessionTokenReturnType {
