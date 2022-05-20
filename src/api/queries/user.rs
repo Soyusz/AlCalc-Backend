@@ -34,7 +34,7 @@ fn get_all_unauthorized() -> status::Unauthorized<()> {
 #[get("/me", rank = 1)]
 fn me(session_token: SessionToken, conn: DBPool) -> Response<UserModel> {
     SessionService::is_authorized(session_token.session_id, &conn)
-        .and_then(|session| UserService::get_user(session.user_id, &conn).ok_or("twoja matka"))
+        .and_then(|session| UserService::get_user(session.user_id, &conn).ok_or("Cannot find user"))
         .map(|r| Json(r))
         .map_err(|e| status::BadRequest(Some(e)))
 }
