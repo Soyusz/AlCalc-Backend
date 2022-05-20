@@ -12,6 +12,6 @@ pub struct VerifyAccountPayload {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct AuthorizeSessionPayload {
+pub struct SessionToken {
     pub session_id: Uuid,
 }

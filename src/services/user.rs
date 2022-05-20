@@ -27,8 +27,8 @@ pub fn insert_user(raw_user: NewUser, conn: DBPool) -> Result<User, &'static str
         })
 }
 
-pub fn get_user(id: Uuid, conn: DBPool) -> Option<User> {
-    UserRepo::get_by_id(id, &conn)
+pub fn get_user(id: Uuid, conn: &DBPool) -> Option<User> {
+    UserRepo::get_by_id(id, conn)
 }
 
 pub fn get_by_email(email: String, conn: &DBPool) -> Option<User> {

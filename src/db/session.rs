@@ -12,7 +12,7 @@ pub fn add_new(session: Session, conn: &PgConnection) -> Result<Session, &'stati
     diesel::insert_into(sessions::table)
         .values(&session)
         .get_result::<Session>(conn)
-        .map_err(|_| "Insert failed")
+        .map_err(|_|"Insert failed")
 }
 
 pub fn authorize(session_id: Uuid, conn: &PgConnection) -> Result<Session,&'static str> {

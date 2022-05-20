@@ -2,6 +2,17 @@ table! {
     use diesel::sql_types::*;
     use crate::sql_types::*;
 
+    authtokens (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        activated -> Bool,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use crate::sql_types::*;
+
     entries (id) {
         id -> Uuid,
         name -> Varchar,
@@ -80,6 +91,7 @@ joinable!(likes -> posts (post_id));
 joinable!(likes -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
+    authtokens,
     entries,
     images,
     likes,
