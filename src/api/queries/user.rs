@@ -1,4 +1,4 @@
-use crate::api::utils::{auth_user::Auth, Response};
+use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::user::User as UserModel;
 use crate::services::session as SessionService;
@@ -19,8 +19,9 @@ fn get_by_id(id_string: String, conn: DBPool) -> Response<UserModel> {
 }
 
 #[get("/", rank = 1)]
-fn get_all(auth: Auth, conn: DBPool) -> Response<Vec<UserModel>> {
-    UserService::get_all(auth.user_id, conn)
+fn get_all(session_token: SessionToken, conn: DBPool) -> Response<Vec<UserModel>> {
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .and_then(|session| UserService::get_all(session.user_id, conn))
         .map(|r| Json(r))
         .map_err(|e| status::BadRequest(Some(e)))
 }
