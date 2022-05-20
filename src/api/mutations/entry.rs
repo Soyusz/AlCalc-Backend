@@ -1,16 +1,24 @@
-use crate::api::utils::{auth_user::Auth, Response};
+use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::entry::{Entry, NewEntry};
 use crate::services::entry as EntryService;
+use crate::services::session as SessionService;
+use crate::types::token::SessionToken;
 use rocket::response::status;
 use rocket::{post, put, routes, Route};
 use rocket_contrib::json::Json;
 use uuid::Uuid;
 
 #[post("/", format = "application/json", data = "<new_entry>", rank = 1)]
-fn post_new(auth: Auth, conn: DBPool, new_entry: Json<NewEntry>) -> Response<Entry> {
-    Ok(new_entry.into_inner())
-        .and_then(|entry| EntryService::insert_entry(entry, auth.user_id, conn))
+fn post_new(
+    session_token: SessionToken,
+    conn: DBPool,
+    new_entry: Json<NewEntry>,
+) -> Response<Entry> {
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .and_then(|session| {
+            EntryService::insert_entry(new_entry.into_inner(), session.user_id, conn)
+        })
         .map_err(|e| status::BadRequest(Some(e)))
         .map(|r| Json(r))
 }

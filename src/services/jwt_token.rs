@@ -13,11 +13,11 @@ struct JwtToken<T> {
 pub fn create<T: Serialize>(payload: T) -> Result<String, &'static str> {
     let jwt_secret = env::var("JWT_SECRET").unwrap();
     let expiration = Utc::now()
-        .checked_add_signed(chrono::Duration::weeks(10))
+        .checked_add_signed(chrono::Duration::days(30))
         .expect("valid timestamp")
         .timestamp();
     let jwt_token = JwtToken {
-        payload: payload,
+        payload,
         exp: expiration as usize,
     };
     let key = EncodingKey::from_secret(jwt_secret.as_bytes());

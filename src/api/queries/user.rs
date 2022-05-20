@@ -1,7 +1,9 @@
-use crate::api::utils::{auth_user::Auth, Response};
+use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::user::User as UserModel;
+use crate::services::session as SessionService;
 use crate::services::user as UserService;
+use crate::types::token::SessionToken;
 use rocket::response::status;
 use rocket::{get, routes, Route};
 use rocket_contrib::json::Json;
@@ -12,13 +14,14 @@ fn get_by_id(id_string: String, conn: DBPool) -> Response<UserModel> {
     Ok(id_string.as_str())
         .and_then(|id| Uuid::parse_str(id))
         .map_err(|_| status::BadRequest(None))
-        .and_then(|id| UserService::get_user(id, conn).ok_or(status::BadRequest(None)))
+        .and_then(|id| UserService::get_user(id, &conn).ok_or(status::BadRequest(None)))
         .map(|r| Json(r))
 }
 
 #[get("/", rank = 1)]
-fn get_all(auth: Auth, conn: DBPool) -> Response<Vec<UserModel>> {
-    UserService::get_all(auth.user_id, conn)
+fn get_all(session_token: SessionToken, conn: DBPool) -> Response<Vec<UserModel>> {
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .and_then(|session| UserService::get_all(session.user_id, conn))
         .map(|r| Json(r))
         .map_err(|e| status::BadRequest(Some(e)))
 }
@@ -29,11 +32,11 @@ fn get_all_unauthorized() -> status::Unauthorized<()> {
 }
 
 #[get("/me", rank = 1)]
-fn me(auth: Auth, conn: DBPool) -> Response<UserModel> {
-    match UserService::get_user(auth.user_id, conn) {
-        Some(user) => Ok(Json(user)),
-        None => Err(status::BadRequest(Some("Invalid token"))),
-    }
+fn me(session_token: SessionToken, conn: DBPool) -> Response<UserModel> {
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .and_then(|session| UserService::get_user(session.user_id, &conn).ok_or("Cannot find user"))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
 }
 
 #[get("/me", rank = 2)]
