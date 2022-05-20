@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct SessionTokenReturnType {
-    pub token: String
+    pub token: String,
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for SessionToken {

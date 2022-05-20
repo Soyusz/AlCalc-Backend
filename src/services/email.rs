@@ -18,7 +18,10 @@ pub fn email_verification(user: &User) -> Result<Response, &'static str> {
     MailerService::send(&mut mailer, mail)
 }
 
-pub fn session_verification(user_email: String, session_id: Uuid) -> Result<Response, &'static str> {
+pub fn session_verification(
+    user_email: String,
+    session_id: Uuid,
+) -> Result<Response, &'static str> {
     let be_url = env::var("BE_URL").unwrap();
     let token = TokenService::create_session_verification_token(&session_id)?;
     let link = be_url + "/user/confirm_session/" + &token;

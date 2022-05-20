@@ -1,4 +1,5 @@
-use crate::services::jwt_token as JwtTokenService; use crate::types::token::AuthTokenPayload;
+use crate::services::jwt_token as JwtTokenService;
+use crate::types::token::AuthTokenPayload;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

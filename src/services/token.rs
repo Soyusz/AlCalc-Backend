@@ -1,9 +1,5 @@
 use crate::services::jwt_token as JwtTokenService;
-use crate::types::token::{
-    AuthTokenPayload,
-    VerifyAccountPayload,
-    SessionToken
-};
+use crate::types::token::{AuthTokenPayload, SessionToken, VerifyAccountPayload};
 use uuid::Uuid;
 
 pub fn create_auth_token(user_id: &Uuid) -> Result<String, &'static str> {
@@ -11,7 +7,10 @@ pub fn create_auth_token(user_id: &Uuid) -> Result<String, &'static str> {
 }
 
 pub fn create_session_token(session_id: &Uuid) -> Result<String, &'static str> {
-    Ok(SessionToken { session_id: *session_id }).and_then(|payload| JwtTokenService::create(payload))
+    Ok(SessionToken {
+        session_id: *session_id,
+    })
+    .and_then(|payload| JwtTokenService::create(payload))
 }
 
 pub fn create_account_verification_token(user_id: &Uuid) -> Result<String, &'static str> {
@@ -20,6 +19,8 @@ pub fn create_account_verification_token(user_id: &Uuid) -> Result<String, &'sta
 }
 
 pub fn create_session_verification_token(session_id: &Uuid) -> Result<String, &'static str> {
-    Ok(SessionToken{ session_id: *session_id})
-        .and_then(|payload| JwtTokenService::create(payload))
+    Ok(SessionToken {
+        session_id: *session_id,
+    })
+    .and_then(|payload| JwtTokenService::create(payload))
 }
