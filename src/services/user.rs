@@ -1,11 +1,9 @@
-use crate::api::utils::structs::LoginCred;
 use crate::api::DBPool;
 use crate::db::user as UserRepo;
 use crate::model::user::{NewUser, User};
 use crate::services::email as EmailService;
 use crate::services::image as ImageService;
 use crate::services::jwt_token as JwtTokenService;
-use crate::services::token as TokenService;
 use crate::sql_types::UserRoles;
 use crate::types::token::VerifyAccountPayload;
 use uuid::Uuid;
@@ -27,11 +25,11 @@ pub fn insert_user(raw_user: NewUser, conn: DBPool) -> Result<User, &'static str
         })
 }
 
-pub fn get_user(id: Uuid, conn: DBPool) -> Option<User> {
-    UserRepo::get_by_id(id, &conn)
+pub fn get_user(id: Uuid, conn: &DBPool) -> Option<User> {
+    UserRepo::get_by_id(id, conn)
 }
 
-pub fn get_by_email(email: String, conn: DBPool) -> Option<User> {
+pub fn get_by_email(email: String, conn: &DBPool) -> Option<User> {
     UserRepo::get_by_email(email, &conn)
 }
 
@@ -46,13 +44,6 @@ pub fn check_admin(user_id: Uuid, conn: &DBPool) -> Result<User, &'static str> {
 
 pub fn get_all(user_id: Uuid, conn: DBPool) -> Result<Vec<User>, &'static str> {
     check_admin(user_id, &conn).map(|_| UserRepo::get_all(&conn))
-}
-
-pub fn login(cred: LoginCred, conn: DBPool) -> Result<String, &'static str> {
-    let email = cred.email.to_lowercase();
-    get_by_email(email, conn)
-        .ok_or("User not found")
-        .and_then(|user| TokenService::create_auth_token(&user.id))
 }
 
 pub fn update_photo(photo: String, user_id: Uuid, conn: &DBPool) -> Result<User, &'static str> {

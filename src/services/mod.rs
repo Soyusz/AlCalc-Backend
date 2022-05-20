@@ -1,4 +1,5 @@
 pub mod email;
+pub mod session;
 pub mod entry;
 pub mod image;
 pub mod jwt_token;

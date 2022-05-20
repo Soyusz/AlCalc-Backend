@@ -1,7 +1,9 @@
-use crate::api::utils::{auth_user::Auth, Response};
+use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::post::Post;
 use crate::services::post as PostService;
+use crate::services::session as SessionService;
+use crate::types::token::SessionToken;
 use rocket::response::status;
 use rocket::{get, routes, Route};
 use rocket_contrib::json::Json;
@@ -37,8 +39,9 @@ fn get_all_unauthorized() -> status::Unauthorized<()> {
 }
 
 #[get("/feed", rank = 1)]
-fn get_feed(auth: Auth, conn: DBPool) -> Response<Vec<Post>> {
-    Ok(PostService::get_feed(auth.user_id, &conn))
+fn get_feed(session_token: SessionToken, conn: DBPool) -> Response<Vec<Post>> {
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .map(|session| PostService::get_feed(session.user_id, &conn))
         .map(|r| Json(r))
         .map_err(|e| status::BadRequest(Some(e)))
 }
