@@ -47,9 +47,9 @@ pub fn unfollow(
 pub fn get_user_followers(user_id: Uuid, conn: &PgConnection) -> Vec<User> {
     all_follows
         .inner_join(
-            all_users.on(follows::followed_id.eq(users::id))
+            all_users.on(follows::follower_id.eq(users::id))
             )
-        .filter(follows::followed_id.eq_all(user_id))
+        .filter(follows::follower_id.eq_all(user_id))
         .select(users::all_columns)
         .load::<User>(conn)
         .unwrap_or(vec![])
@@ -58,9 +58,9 @@ pub fn get_user_followers(user_id: Uuid, conn: &PgConnection) -> Vec<User> {
 pub fn get_user_followed(user_id: Uuid, conn: &PgConnection) -> Vec<User> {
     all_follows
         .inner_join(
-            all_users.on(follows::follower_id.eq(users::id))
+            all_users.on(follows::followed_id.eq(users::id))
             )
-        .filter(follows::follower_id.eq_all(user_id))
+        .filter(follows::followed_id.eq_all(user_id))
         .select(users::all_columns)
         .load::<User>(conn)
         .unwrap_or(vec![])
