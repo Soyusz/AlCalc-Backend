@@ -21,6 +21,6 @@ pub fn unfollow(follower_id: Uuid, followed_id: Uuid, conn: &DBPool) -> Result<F
 pub fn follow(follower_id: Uuid, followed_id: Uuid, conn: &DBPool) -> Result<Follow, &'static str> {
     match FollowRepo::get_follow(follower_id, followed_id, &conn) {
         Some(follow) => Ok(follow),
-        None => FollowRepo::follow(Follow::create_follow(followed_id, follower_id), &conn),
+        None => FollowRepo::follow(Follow::create_follow(follower_id, followed_id), &conn),
     }
 }
