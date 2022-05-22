@@ -75,22 +75,20 @@ fn my_followed_unauthorized() -> status::Unauthorized<()> {
 fn get_user_follows(conn: DBPool, id_string: String) -> Response<Vec<UserModel>> {
     Ok(id_string.as_str())
         .and_then(|id| Uuid::parse_str(id))
-        .map_err(|_| status::BadRequest(None))
-        .and_then(|id| match FollowService::get_user_follows(id, &conn) {
-            Ok(vect) => Ok(Json(vect)),
-            Err(_) => Err(status::BadRequest(None)),
-        })
+        .map_err(|_| "Invalid user id")
+        .and_then(|id| FollowService::get_user_follows(id, &conn))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
 }
 
 #[get("/followed/<id_string>")]
 fn get_user_followed(conn: DBPool, id_string: String) -> Response<Vec<UserModel>> {
     Ok(id_string.as_str())
         .and_then(|id| Uuid::parse_str(id))
-        .map_err(|_| status::BadRequest(None))
-        .and_then(|id| match FollowService::get_user_followed(id, &conn) {
-            Ok(vect) => Ok(Json(vect)),
-            Err(_) => Err(status::BadRequest(None)),
-        })
+        .map_err(|_| "Invalid user id")
+        .and_then(|id| FollowService::get_user_followed(id, &conn))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
 }
 
 
