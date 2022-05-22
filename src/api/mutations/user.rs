@@ -1,14 +1,17 @@
 use crate::api::utils::session::SessionTokenReturnType;
+use uuid::Uuid;
+use crate::services::follow as FollowService;
 use crate::api::utils::structs::{LoginCred, PhotoArg};
 use crate::api::utils::Response;
 use crate::api::DBPool;
 use crate::model::session::Session;
 use crate::model::user::{NewUser, User as UserModel};
+use crate::model::follow::Follow as FollowModel;
 use crate::services::session as SessionService;
 use crate::services::user as UserService;
 use crate::types::token::SessionToken;
 use rocket::response::status;
-use rocket::{get, post, put, routes, Route};
+use rocket::{delete, get, post, put, routes, Route};
 use rocket_contrib::json::Json;
 
 #[post("/", format = "application/json", data = "<new_user>", rank = 1)]
@@ -68,8 +71,40 @@ fn confirm_session(token_arg: String, conn: DBPool) -> Response<Session> {
         .map_err(|e| status::BadRequest(Some(e)))
 }
 
+#[post("/follow/<id_string>", rank=1)]
+pub fn follow(session_token: SessionToken, conn: DBPool, id_string: String) -> Response<FollowModel> {
+    let user_id=Uuid::parse_str(id_string.as_str()).map_err(|_| status::BadRequest(Some("Invalid id")))?;
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .and_then(|session| FollowService::follow(session.user_id, user_id, &conn))
+        .map_err(|e| status::BadRequest(Some(e)))
+        .map(|r| Json(r))
+}
+
+#[post("/follow/<_id_string>", rank=2)]
+pub fn follow_unauthorized(_id_string: String) -> status::Unauthorized<()> {
+    status::Unauthorized(None)
+}
+
+#[delete("/unfollow/<id_string>", rank=1)]
+pub fn unfollow(session_token: SessionToken, conn: DBPool, id_string: String) -> Response<FollowModel> {
+    let user_id=Uuid::parse_str(id_string.as_str()).map_err(|_| status::BadRequest(Some("Invalid id")))?;
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .and_then(|session| FollowService::unfollow(session.user_id, user_id, &conn))
+        .map_err(|e| status::BadRequest(Some(e)))
+        .map(|r| Json(r))
+}
+
+#[delete("/unfollow/<_id_string>", rank=2)]
+pub fn unfollow_unauthorized(_id_string: String) -> status::Unauthorized<()> {
+    status::Unauthorized(None)
+}
+
 pub fn get_routes() -> std::vec::Vec<Route> {
     routes![
+        follow,
+        unfollow,
+        follow_unauthorized,
+        unfollow_unauthorized,
         confirm_session,
         post_new,
         post_new_invalid,

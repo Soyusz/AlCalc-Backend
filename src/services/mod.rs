@@ -1,4 +1,5 @@
 pub mod email;
+pub mod follow;
 pub mod session;
 pub mod entry;
 pub mod image;

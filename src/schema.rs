@@ -1,15 +1,5 @@
 table! {
     use diesel::sql_types::*;
-
-    authtokens (id) {
-        id -> Uuid,
-        user_id -> Uuid,
-        activated -> Bool,
-    }
-}
-
-table! {
-    use diesel::sql_types::*;
     use crate::sql_types::*;
 
     entries (id) {
@@ -27,6 +17,18 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
+
+    follows (id) {
+        id -> Uuid,
+        follower_id -> Uuid,
+        followed_id -> Uuid,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     images (id) {
         id -> Uuid,
@@ -36,6 +38,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     likes (id) {
         id -> Uuid,
@@ -46,6 +49,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     posts (id) {
         id -> Uuid,
@@ -58,6 +62,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use crate::sql_types::*;
 
     sessions (id) {
         id -> Uuid,
@@ -85,4 +90,12 @@ joinable!(entries -> users (user_id));
 joinable!(likes -> posts (post_id));
 joinable!(likes -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(authtokens, entries, images, likes, posts, sessions, users,);
+allow_tables_to_appear_in_same_query!(
+    entries,
+    follows,
+    images,
+    likes,
+    posts,
+    sessions,
+    users,
+);
