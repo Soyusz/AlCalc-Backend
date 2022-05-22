@@ -80,9 +80,9 @@ pub fn follow(session_token: SessionToken, conn: DBPool, id_string: String) -> R
         .map(|r| Json(r))
 }
 
-#[post("/follow", rank=2)]
-pub fn follow_unauthorized() -> status::BadRequest<()> {
-    status::BadRequest(None)
+#[post("/follow/<_id_string>", rank=2)]
+pub fn follow_unauthorized(_id_string: String) -> status::Unauthorized<()> {
+    status::Unauthorized(None)
 }
 
 #[delete("/unfollow/<id_string>", rank=1)]
@@ -94,9 +94,9 @@ pub fn unfollow(session_token: SessionToken, conn: DBPool, id_string: String) ->
         .map(|r| Json(r))
 }
 
-#[post("/unfollow", rank=2)]
-pub fn unfollow_unauthorized() -> status::BadRequest<()> {
-    status::BadRequest(None)
+#[delete("/unfollow/<_id_string>", rank=2)]
+pub fn unfollow_unauthorized(_id_string: String) -> status::Unauthorized<()> {
+    status::Unauthorized(None)
 }
 
 pub fn get_routes() -> std::vec::Vec<Route> {
