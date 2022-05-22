@@ -15,8 +15,8 @@ impl Like {
     pub fn create_like(post_id: Uuid, user_id: Uuid) -> Like {
         Like {
             id: Uuid::new_v4(),
-            post_id: post_id,
-            user_id: user_id
+            post_id,
+            user_id
         }
     }
 }
