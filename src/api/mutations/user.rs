@@ -1,10 +1,11 @@
 use crate::api::utils::session::SessionTokenReturnType;
+use rocket::response::content::Html;
 use uuid::Uuid;
 use crate::services::follow as FollowService;
+use crate::services::template as TemplateService;
 use crate::api::utils::structs::{LoginCred, PhotoArg};
 use crate::api::utils::Response;
 use crate::api::DBPool;
-use crate::model::session::Session;
 use crate::model::user::{NewUser, User as UserModel};
 use crate::model::follow::Follow as FollowModel;
 use crate::services::session as SessionService;
@@ -56,18 +57,21 @@ fn put_photo(
 }
 
 #[get("/verify_email/<token_arg>")]
-fn verify_account(token_arg: String, conn: DBPool) -> Response<UserModel> {
+fn verify_account(token_arg: String, conn: DBPool) -> Result<Html<String>,status::BadRequest<&'static str>> {
     Ok(token_arg.as_str())
         .and_then(|token| UserService::verify_account(token.to_string(), &conn))
         .map(|r| Json(r))
+        .and_then(|_| TemplateService::get_close_this_template() )
+        .and_then(|s| Ok(Html(s)))
         .map_err(|e| status::BadRequest(Some(e)))
 }
 
-#[get("/confirm_session/<token_arg>")]
-fn confirm_session(token_arg: String, conn: DBPool) -> Response<Session> {
+#[get("/confirm_session/<token_arg>", format="text/html")]
+fn confirm_session(token_arg: String, conn: DBPool) -> Result<Html<String>,status::BadRequest<&'static str>> {
     Ok(token_arg.as_str())
         .and_then(|token| SessionService::authorize(token.to_string(), &conn))
-        .map(|r| Json(r))
+        .and_then(|_| TemplateService::get_close_this_template() )
+        .and_then(|s| Ok(Html(s)))
         .map_err(|e| status::BadRequest(Some(e)))
 }
 

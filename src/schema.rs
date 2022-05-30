@@ -57,6 +57,7 @@ table! {
         location -> Nullable<Varchar>,
         title -> Varchar,
         photos -> Array<Text>,
+        post_time -> Timestamp,
     }
 }
 

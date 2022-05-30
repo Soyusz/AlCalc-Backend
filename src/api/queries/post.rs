@@ -45,8 +45,22 @@ fn get_feed(session_token: SessionToken, conn: DBPool) -> Response<Vec<Post>> {
         .map(|r| Json(r))
         .map_err(|e| status::BadRequest(Some(e)))
 }
+
+#[get("/followed-feed", rank = 1)]
+fn get_followed_feed(session_token: SessionToken, conn: DBPool) -> Response<Vec<Post>> {
+    SessionService::is_authorized(session_token.session_id, &conn)
+        .map(|session| PostService::get_feed_followed(session.user_id, &conn))
+        .map(|r| Json(r))
+        .map_err(|e| status::BadRequest(Some(e)))
+}
+
 #[get("/feed", rank = 2)]
 fn get_feed_unauthorized() -> status::Unauthorized<()> {
+    status::Unauthorized(None)
+}
+
+#[get("/followed-feed", rank = 2)]
+fn get_followed_feed_unauthorized() -> status::Unauthorized<()> {
     status::Unauthorized(None)
 }
 
@@ -57,6 +71,8 @@ pub fn get_routes() -> std::vec::Vec<Route> {
         get_by_id,
         get_by_user,
         get_feed,
-        get_feed_unauthorized
+        get_feed_unauthorized,
+        get_followed_feed,
+        get_followed_feed_unauthorized
     ]
 }
