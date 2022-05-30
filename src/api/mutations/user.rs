@@ -57,10 +57,12 @@ fn put_photo(
 }
 
 #[get("/verify_email/<token_arg>")]
-fn verify_account(token_arg: String, conn: DBPool) -> Response<UserModel> {
+fn verify_account(token_arg: String, conn: DBPool) -> Result<Html<String>,status::BadRequest<&'static str>> {
     Ok(token_arg.as_str())
         .and_then(|token| UserService::verify_account(token.to_string(), &conn))
         .map(|r| Json(r))
+        .and_then(|_| TemplateService::get_close_this_template() )
+        .and_then(|s| Ok(Html(s)))
         .map_err(|e| status::BadRequest(Some(e)))
 }
 
