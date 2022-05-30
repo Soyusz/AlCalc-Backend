@@ -16,5 +16,3 @@ backend url: https://alcalc.herokuapp.com
 4. PostgreSQL
 5. Heroku
 6. CircleCI
-
-ta linijka jest po to żeby była zmiana bo prod failuje!!
