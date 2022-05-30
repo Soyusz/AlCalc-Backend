@@ -2,6 +2,7 @@ use crate::api::DBPool;
 use crate::db::image as ImageFactory;
 use crate::model::image::Image;
 use base64;
+use data_url::DataUrl;
 use std::env;
 use uuid::Uuid;
 
@@ -14,7 +15,10 @@ pub fn create_from_blob(value: Vec<u8>, conn: &DBPool) -> Result<Image, &'static
 }
 
 pub fn create_from_base(base: String, conn: &DBPool) -> Result<Image, &'static str> {
-    base_to_blob(base).and_then(|b| create_from_blob(b, conn))
+    DataUrl::process(base.as_str())
+        .map_err(|_| "Error processing data-url")
+        .and_then(|url| url.decode_to_vec().map_err(|_| "Error decoding to vector"))
+        .and_then(|body| create_from_blob(body.0, conn))
 }
 
 pub fn gen_link(image: Image) -> String {
