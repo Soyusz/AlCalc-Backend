@@ -1,4 +1,5 @@
 use crate::api::utils::session::SessionTokenReturnType;
+use rocket::response::content::Html;
 use uuid::Uuid;
 use crate::services::follow as FollowService;
 use crate::services::template as TemplateService;
@@ -64,10 +65,11 @@ fn verify_account(token_arg: String, conn: DBPool) -> Response<UserModel> {
 }
 
 #[get("/confirm_session/<token_arg>", format="text/html")]
-fn confirm_session(token_arg: String, conn: DBPool) -> Result<String,status::BadRequest<&'static str>> {
+fn confirm_session(token_arg: String, conn: DBPool) -> Result<Html<String>,status::BadRequest<&'static str>> {
     Ok(token_arg.as_str())
         .and_then(|token| SessionService::authorize(token.to_string(), &conn))
         .and_then(|_| TemplateService::get_close_this_template() )
+        .and_then(|s| Ok(Html(s)))
         .map_err(|e| status::BadRequest(Some(e)))
 }
 
