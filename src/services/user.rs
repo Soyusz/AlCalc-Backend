@@ -2,9 +2,12 @@ use crate::api::DBPool;
 use crate::db::user as UserRepo;
 use crate::model::user::{NewUser, User};
 use crate::services::email as EmailService;
+use crate::services::follow as FollowService;
 use crate::services::image as ImageService;
 use crate::services::jwt_token as JwtTokenService;
+use crate::services::post as PostService;
 use crate::sql_types::UserRoles;
+use crate::types::stats::Stats;
 use crate::types::token::VerifyAccountPayload;
 use uuid::Uuid;
 
@@ -56,4 +59,18 @@ pub fn verify_account(token: String, conn: &DBPool) -> Result<User, &'static str
     JwtTokenService::validate::<VerifyAccountPayload>(token)
         .and_then(|payload| UserRepo::get_by_id(payload.user_id, &conn).ok_or("Cannot fetch user"))
         .and_then(|user| UserRepo::verify_email(user.id, &conn))
+}
+
+pub fn get_user_stats(user_id: Uuid, conn: &DBPool) -> Result<Stats, &'static str> {
+    let followed = FollowService::get_user_followed(user_id, conn)?;
+    let follows = FollowService::get_user_follows(user_id, conn)?;
+    let posts = PostService::get_by_user(user_id, conn);
+    let user = get_user(user_id, conn).ok_or("Cannot find user")?;
+
+    Ok(Stats {
+        followers_number: follows.len(),
+        following_number: followed.len(),
+        post_number: posts.len(),
+        name: user.name,
+    })
 }
