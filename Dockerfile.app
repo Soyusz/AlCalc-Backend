@@ -31,7 +31,7 @@ COPY . .
 RUN cargo build --release
 
 # Install diesel_cli with postgres support
-RUN cargo install diesel_cli --no-default-features --features postgres
+RUN cargo install diesel_cli --version 2.0.1 --no-default-features --features postgres
 
 # ==================== Runtime Stage ====================
 FROM debian:bullseye-slim
