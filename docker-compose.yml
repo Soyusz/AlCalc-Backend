@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
-    image: ghcr.io/${GITHUB_ACTOR}/alcalc-app:latest 
+    image: ghcr.io/magulloff/alcalc-app:latest 
     depends_on:
       db:
         condition: service_healthy
