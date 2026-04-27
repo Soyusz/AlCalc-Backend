@@ -1,11 +1,11 @@
 # ==================== Builder Stage ====================
 FROM rust:1.85-bookworm AS builder
 
-# Install the specific old nightly toolchain from June 2020
-RUN rustup toolchain install nightly-2020-06-18 --profile minimal \
-    && rustup default nightly-2020-06-18
+# Use a much newer nightly that supports edition 2021 (and most features from 2020-era projects)
+RUN rustup toolchain install nightly-2021-10-21 --profile minimal \
+    && rustup default nightly-2021-10-21
 
-# Install system dependencies for building
+# Install system dependencies needed for building
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     pkg-config \
@@ -13,30 +13,29 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy dependency files first for better caching
+# Copy Cargo files first for better layer caching
 COPY Cargo.toml Cargo.lock* ./
 
-# Create dummy source files so cargo can build dependencies
+# Create dummy source to build dependencies only
 RUN mkdir -p src && \
     echo "fn main() {}" > src/main.rs && \
     echo "pub fn dummy() {}" > src/lib.rs
 
-# Build dependencies only (cached layer)
+# Build dependencies (this layer will be cached)
 RUN cargo build --release && rm -rf src
 
-# Now copy the real source code
+# Copy the actual source code
 COPY . .
 
-# Build the actual project
+# Build the real project
 RUN cargo build --release
 
-# Install diesel CLI with postgres support
+# Install diesel_cli with postgres support
 RUN cargo install diesel_cli --no-default-features --features postgres
 
 # ==================== Runtime Stage ====================
 FROM debian:bullseye-slim
 
-# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     libpq5 \
     ca-certificates \
@@ -44,18 +43,18 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy the compiled binary
+# Copy binary from builder
 COPY --from=builder /app/target/release/alcalc_backend /app/alcalc_backend
 
 # Copy diesel CLI
 COPY --from=builder /usr/local/cargo/bin/diesel /usr/local/bin/diesel
 
-# Copy migrations and config files
+# Copy migrations and config
 COPY --from=builder /app/migrations /app/migrations
 COPY --from=builder /app/diesel.toml /app/diesel.toml
 COPY --from=builder /app/.env /app/.env
 
-# Copy and make entrypoint executable
+# Copy entrypoint
 COPY --from=builder /app/docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
