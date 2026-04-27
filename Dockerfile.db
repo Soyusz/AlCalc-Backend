@@ -1,0 +1,9 @@
+FROM postgres:14
+
+ENV POSTGRES_USER=alcalc_user
+ENV POSTGRES_PASSWORD=alcalc_pass
+ENV POSTGRES_DB=alcalc_db
+
+COPY ./migrations /docker-entrypoint-initdb.d/migrations
+
+EXPOSE 5432

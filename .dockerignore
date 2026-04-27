@@ -1,0 +1,11 @@
+/target
+.git
+.gitignore
+.env
+.dockerignore
+docker-compose.yml
+Dockerfile.*
+*.md
+.circleci
+migrations/.gitkeep
+tests

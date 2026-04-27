@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-alcalc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alcalc_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-alcalc_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-alcalc_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-alcalc_user}:${POSTGRES_PASSWORD:-alcalc_pass}@db:5432/${POSTGRES_DB:-alcalc_db}
+      ROCKET_ENV: production
+      ROCKET_PORT: 8000
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
