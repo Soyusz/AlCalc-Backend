@@ -4,7 +4,7 @@ use lettre_email::{Email, EmailBuilder};
 use std::env;
 
 pub fn create_mailer() -> Result<SmtpTransport, &'static str> {
-    SmtpClient::new_simple("smtp.gmail.com")
+    SmtpClient::new_simple("smtp-relay.brevo.com")
         .map(|res| {
             res.credentials(Credentials::new(
                 env::var("EMAIL_ADDRESS").unwrap(),
